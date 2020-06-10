@@ -1,0 +1,32 @@
+ROOTPASSWD="octoroot"
+OCTO_USER="pi"
+OCTO_PASSWD="pi"
+
+BASE_PACKS="git wget python2.7 python-virtualenv virtualenv python-dev screen subversion cmake checkinstall avahi-daemon libavahi-compat-libdnssd1 libffi-dev libssl-dev ssl-cert haproxy samba samba-common libjpeg62-turbo-dev imagemagick ffmpeg libv4l-dev"
+OCTOPRINT_ARCHIVE=$(wget -q -O - https://api.github.com/repos/foosel/OctoPrint/releases/latest | grep "zipball_url" | cut -d : -f 2,3 | tr -d \" | tr -d ,)
+OCTOPRINT_PLUGINS=( "https://github.com/imrahil/OctoPrint-NavbarTemp/archive/master.zip"
+                    "https://github.com/Renaud11232/OctoPrint-Resource-Monitor/archive/master.zip"
+                    "https://github.com/BrokenFire/OctoPrint-SimpleEmergencyStop/archive/master.zip"
+                    "https://github.com/MoonshineSG/OctoPrint-Autoscroll/archive/master.zip"
+                    "https://github.com/StefanCohen/OctoPrint-Dashboard/archive/master.zip"
+                    "https://github.com/jneilliii/OctoPrint-FloatingNavbar/archive/master.zip"
+                    "https://github.com/ieatacid/OctoPrint-GcodeEditor/archive/master.zip"
+                    "https://github.com/tjjfvi/OctoPrint-BetterHeaterTimeout/archive/master.zip"
+                    "https://github.com/bradcfisher/OctoPrint-ExcludeRegionPlugin/archive/master.zip"
+                    "https://github.com/jneilliii/OctoPrint-TabOrder/archive/master.zip"
+                    "https://github.com/jneilliii/OctoPrint-BLTouch/archive/master.zip"                    
+                    "https://github.com/OllisGit/OctoPrint-DisplayLayerProgress/releases/latest/download/master.zip"
+                    "https://github.com/jneilliii/OctoPrint-BedLevelingWizard/archive/master.zip"
+                    "https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/archive/master.zip"
+)
+# "https://github.com/mmone/OctoPrintKlipper/archive/master.zip"
+
+PYBONJOUR_ARCHIVE=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/pybonjour/pybonjour-1.1.1.tar.gz
+MJPGSTREAMER_REPO_SHIP=https://github.com/jacksonliam/mjpg-streamer.git
+YQ_DOWNLOAD=$(wget -q -O - https://api.github.com/repos/mikefarah/yq/releases/latest | grep "browser_download_url" | grep "yq_linux_arm\b" | cut -d : -f 2,3 | tr -d \" | tr -d ,)
+YQ_DOWNLOAD64=$(wget -q -O - https://api.github.com/repos/mikefarah/yq/releases/latest | grep "browser_download_url" | grep "yq_linux_arm64" | cut -d : -f 2,3 | tr -d \" | tr -d ,)
+
+MARLIN2_ARCHIVE=https://github.com/MarlinFirmware/Marlin/archive/2.0.x.zip
+MARLIN1_ARCHIVE=https://github.com/MarlinFirmware/Marlin/archive/1.1.x.zip
+KLIPPER_REPO=https://github.com/KevinOConnor/klipper
+MJPGSTREAMER_REPO=https://github.com/jacksonliam/mjpg-streamer.git

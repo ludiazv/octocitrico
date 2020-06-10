@@ -1,0 +1,4 @@
+#!/bin/bash
+
+TERM=linux toilet -f standard -F metal -F border OctoCitrico
+echo "Running on ...."

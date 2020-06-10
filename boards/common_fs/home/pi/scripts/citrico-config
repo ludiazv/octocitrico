@@ -1,0 +1,116 @@
+#!/bin/bash
+BACKTIT="OctoCitrico"
+DIALOG="dialog --backtitle $BACKTIT"
+TMP="/tmp/aswer.tmp"
+RET=0
+SERVICES=( octoprint.service haproxy.service webcamd.service smbd.service klipper.service )
+SERVICES_N=( "Octoprint" "HAProxy" "WebCam streamer" "Samba Shares" "Klipper 3D printer control" )
+
+if [ "$EUID" -ne 0 ] ; then
+    echo "This script require sudo to run. type sudo $0"
+    exit 1
+fi
+
+function service_down() {
+  local srv=$1
+  systemctl -q is-active $srv
+  local ret=$?
+  if [ $ret -eq 0 ] ; then
+	systemctl -q stop $srv
+  fi
+  systemctl -q is-enabled $srv
+  ret=$?
+  if [ $ret -eq 0 ] ; then
+	systemctl -q disable $srv
+  fi
+}
+function service_up() {
+ local srv=$1
+ systemctl -q is-enabled $srv
+ local ret=$?
+ if [ ! $ret -eq 0 ] ; then
+    systemctl -q enable $srv
+ fi
+ systemctl -q is-active $srv
+ ret=$?
+ if [ ! $ret -eq  0 ] ; then
+	systemctl -q start $srv
+ fi
+}
+
+
+function menu_services() {
+   local len=${#SERVICES[@]}
+   local ags=()
+  
+   for (( i=0; i<${len} ; i++ ));
+   do
+	ags+=("${SERVICES[$i]}")
+        ags+=("\"${SERVICES_N[$i]}\"")
+        systemctl is-enabled ${SERVICES[$i]} > /dev/null
+        if [ $? -eq 0 ] ; then
+	   ags+=('on')
+	else
+           ags+=('off')
+	fi
+   done
+   
+   echo "${ags[@]}" | xargs $DIALOG --checklist "Choose services:" 0 0 ${len} 2>$TMP
+   local ret=$?
+   if [ $ret -eq 0 ] ; then
+	local sel=$(cat $TMP)
+	for s in "${SERVICES[@]}"
+	do
+	   echo $sel | grep -q $s
+	   ret=$?
+           if [ $ret -eq 0 ] ; then
+		$DIALOG --title "Activating..." --infobox "$s" 0 0
+		service_up $s
+		sleep 2
+	   else
+		$DIALOG --title "Removing..." --infobox "$s" 0 0
+		service_down $s
+		sleep 2
+	   fi
+	done
+	$DIALOG --msgbox "Services updated!" 0 0
+   fi
+}
+
+
+while [ $RET -eq 0 ]
+do
+ $DIALOG --title "Octo-citrico config" --menu "Choose Option:" 0 0 4 \
+        1 "Octo-citrico services" \
+        2 "Network configuration" \
+	3 "Edit camera options" \
+        4 "Armbian-config" 2>$TMP
+
+ RET=$?
+ if [ $RET -eq 0 ] ; then 
+    op=$(cat $TMP)
+    case $op in 
+	1)
+	  menu_services
+	   ;;
+	2)
+	  nmtui
+	  ;;
+	3)
+	  $DIALOG --title "Edit octopi.txt" --editbox /boot/octopi.txt 0 0 2>$TMP
+	  local RET2=$?
+	  if [ $RET2 -eq 0 ] ; then
+	  	mv $TMP /boot/octopi.txt
+	  fi
+	  ;;
+	4)
+	  armbian-config
+	  ;;
+	
+    esac 
+fi
+
+done
+
+clear
+rm -f $TMP

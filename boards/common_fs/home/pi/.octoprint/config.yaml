@@ -1,0 +1,12 @@
+webcam:
+    stream: /webcam/?action=stream
+    snapshot: http://127.0.0.1:8080/?action=snapshot
+    ffmpeg: /usr/bin/ffmpeg
+plugins:
+    discovery:
+      publicPort: 80
+server:
+    commands:
+      systemShutdownCommand: sudo /sbin/shutdown -h now
+      systemRestartCommand:  sudo /sbin/shutdown -r now
+      serverRestartCommand:  sudo /bin/systemctl restart octoprint.service
