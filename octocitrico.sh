@@ -7,6 +7,9 @@ UP_DIR=$AR_DIR/userpatches
 OV_DIR=$UP_DIR/overlay
 RT_DIR=/tmp/overlay
 VAGRANT_DIR=armbian_build/config/templates
+VAGRANT_BOX="ubuntu/bionic64"
+#VAGRANT_BOX="ubuntu/focal64"
+
 
 set -e 
 echo "OptoCitrico script => $1"
@@ -19,18 +22,19 @@ if [ $# -eq 0 ] ; then
    echo " $0 assets         : download build assets"
    echo " $0 build <board>  : Build image for board <board>"
    echo " $0 native <board> : Build image in native supported Ubuntu"
+   echo " $0 release        : Create a git release (use for maintenance)"
    exit 1
 fi
 
 
 function clean_vm() {
-    if [ -d armbian_build ] ; then
+    if [ -d $AR_DIR ] && [ -d $UP_DIR ]; then
         pushd $UP_DIR
         echo "Cleaning virtual machine...."
         vagrant destroy
         popd
     else
-        echo "armbian_build do not exist. nothing to clean"
+        echo "$UP_DIR do not exist. nothing to clean"
     fi
 }
 
@@ -102,9 +106,9 @@ if [ "$1" == "box" ] ; then
         echo "Vagrant not found. Install vagrant for compiling"
         exit 1
     fi
-    echo "Setting up bionic box...."
+    echo "Setting up $VAGRANT box...."
     vagrant plugin install vagrant-disksize
-    vagrant box add ubuntu/bionic64
+    vagrant box add $VAGRANT_BOX
     vagrant box update
     exit $?
 fi
@@ -165,13 +169,18 @@ fi
 if [ "$1" == "clean" ] ; then
    clean_vm
    echo "Uninstalling ubuntu box...."
-   vagrant box remove ubuntu/bionic64 --all
+   vagrant box remove $VAGRANT_BOX --all
    echo "Removing assets..."
    rm -fR armbian_build
    rm -fR opi_source
    echo "Removing ouputs...."
    rm -fR images
    exit $?
+fi
+
+if [ "$1" == "release" ] ; then
+    echo "TODO automatic release"
+    exit 1
 fi
 
 echo "Invalid command"
