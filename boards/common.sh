@@ -93,9 +93,10 @@ function add_overlay() {
 		  echo "Overlay ${ov} was already added to /boot/armbianEnv.txt, skipping"
 	  else
 		sed -i -e "/^overlays=/ s/$/ ${ov}/" /boot/armbianEnv.txt
-	fi
+	  fi
   else
-    sed -i -e "\$overlays=${ov}" /boot/armbianEnv.txt
+    #sed -i -e "\$overlays=${ov}" /boot/armbianEnv.txt
+    echo -e "overlays=${ov}" >> /boot/armbianEnv.txt
   fi
   # adding parameters at the end of the file
   if [ ! -z $pars ] ; then
@@ -226,13 +227,14 @@ function install_octoprint_plugins() {
 # $1 -> user
 function install_mjpgstreamer() {
   local user=$1
-  pushd /home/$user
-  su -l $user -c "git clone --depth 1 $MJPGSTREAMER_REPO mjpg-streamer"
-  popd
+  #pushd /home/$user
+  #su -l $user -c "git clone --depth 1 $MJPGSTREAMER_REPO mjpg-streamer"
+  #popd
+  
   pushd /home/$user/mjpg-streamer
-    su -l $user -c "cd /home/$user/mjpg-streamer && mv mjpg-streamer-experimental/* . && make && mkdir -p www-octopi"
+  su -l $user -c "cd /home/$user/mjpg-streamer && make && mkdir -p www-octopi"
    
-        cat <<EOT >> www-octopi/index.html
+  cat <<EOT >> www-octopi/index.html
 <html>
 <head><title>mjpg_streamer test page</title></head>
 <body>
@@ -260,10 +262,10 @@ function install_extras() {
   su -l $user -c "virtualenv .platformio/penv"
   su -l $user -c "/home/$user/.platformio/penv/bin/pip --no-cache-dir install -U platformio"
   su -l $user -c "echo 'export PATH=\$PATH:~/.platformio/penv/bin' >> /home/$user/.profile"
-  su -l $user -c "git clone --depth 1 $KLIPPER_REPO"
-  sed -i 's/pip -r/pip --no-cache-dir -r /g' ./klipper/scripts/install-debian.sh
-  su -l $user -c "chmod u+x ./klipper/scripts/install-debian.sh && ./klipper/scripts/install-debian.sh"
-  systemctl disable klipper.service
+  #su -l $user -c "git clone --depth 1 $KLIPPER_REPO"
+  #sed -i 's/pip -r/pip --no-cache-dir -r /g' ./klipper/scripts/install-debian.sh
+  #su -l $user -c "chmod u+x ./klipper/scripts/install-debian.sh && ./klipper/scripts/install-debian.sh"
+  #systemctl disable klipper.service
   popd
   echo $? "[EXTRAS]"
 }
@@ -286,10 +288,11 @@ function customize() {
   #users_and_groups $ROOTPASSWD $OCTO_USER $OCTO_PASSWD
   tweak_base
   change_host_name "citrico-$board"
+  df -h
   install_octoprint $OCTO_USER
+  df -h
   install_octoprint_plugins $OCTO_USER
-  install_mjpgstreamer $OCTO_USER
-  install_extras $OCTO_USER
+  df -h
 
   # unpack FS
   unpack_file $rt_dir/filesystem/boot/octopi.txt /boot/octopi.txt   root
@@ -300,6 +303,21 @@ function customize() {
   unpack $rt_dir/filesystem/root/etc/systemd     /etc/systemd       root
   unpack $rt_dir/common_fs/etc                   /etc               root
   unpack $rt_dir/common_fs/home/$OCTO_USER       /home/$OCTO_USER   $OCTO_USER
+
+  # make home/$user/scripts executable
+  chmod u+x /home/$OCTO_USER/scripts/*
+
+  # unpack MJPG STREAMER
+  unpack $rt_dir/mjpg-streamer/mjpg-streamer-experimental   /home/$OCTO_USER/mjpg-streamer   $OCTO_USER
+  # unpack Klipper
+  #unpack $rt_dir/klipper   /home/$OCTO_USER/klipper   $OCTO_USER
+
+  df -h
+  # Install extras
+  install_mjpgstreamer $OCTO_USER
+  df -h
+  install_extras $OCTO_USER
+  df -h
 
   #enable/disable services
   systemctl enable gencert.service
