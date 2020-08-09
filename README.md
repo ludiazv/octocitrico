@@ -10,17 +10,17 @@ Credits of this project are for the awesome Armbian team and the outstanding wor
 Core (installed and enabled):
 * Optimized armbian Debian buster.
 * Latest stable octoprint version.
+* Selection of top octoprint plugins.
 * HAProxy with self signed keys for ssl access.
 * Avahi service: Bonjur addvertisement (this enable to acces with host-name.local via ssh or http/s)
 * SSH console access.
 * USB OTG console access (if available in the board)
 * Enabled i2c-dev,spidev (if available on the board)
 
-3D printer related software (installed but disabled):
-* Klipper 
+3D printer related software:
+* Quick install of Klipper. 
 * PlatformIo core for building 3D printer firmware.
 * Marlin 1.1.x & Marlin 2.x.x firmware (bugfix versions)  
-* Selection of top octoprint plugins.
 
 Extras (installed but disabled):
 * MPGStreamer USB camera support (experimental)
@@ -40,9 +40,9 @@ First boot tipically require a few minutes. Once booted octoprint will be availa
 After boot you can access to octroprint server:
 - Access to octoprint via https
 - ssh session
-- Console on Usb OGT (if the board support it)
+- Console on Usb OTG (if the board supports it)
 - Console on board's serial interface with a USB-TTL 
-- Conecting a keyboard and screen (if the board support it)
+- Conecting a keyboard and screen (if the board supports it)
 
 Armbian do not activate WiFi by default. Any initial network access requires ethernet connection if available on the board.
 
@@ -54,16 +54,22 @@ Armbian do not activate WiFi by default. Any initial network access requires eth
 
 It's recommended but not mandatory to change user passwords and disable root access via SSH.
 
-## Customizing
-For configuring WiFi or customize your instance you need to log into you octocitrico server and configure as you want as in any linux box. Armbian and octocitrico provides helper scripts to make easy the configuration of the box. 
+## Camera configuration
+As derivative distribution of OctoPi **Octocitrico** support camera operation out of the box using the same configuration files of OctPi. Any USB camera/webcams supported by debian and by [MJPG-Streamer](https://github.com/jacksonliam/mjpg-streamer) would work. Other cameras might require addtional software installation or configuration steps.
 
-Log with the ```pi``` user:
+Refer to OctoPi [documentation](https://community.octoprint.org/knowledge-explorer?topic=21149) and online tutorials on how to tune your camera. You can edit camera options using ```scripts/citrico-config``` helper tool.
+
+## Customizing
+For configuring WiFi or customize your instance you need to log into you octocitrico server and configure as you want as in any linux computer. Armbian and octocitrico provides helper scripts to make easy the configuration of the box. 
+
+Login with the ```pi``` user:
 
 - ```armbian-config```: Fullfleged configuraion tool.
 - ```nmtui```: Network configuration.
-- ```scripts/citrico-config```: Enable or disable **octocitrico** default services and edit **octopi** camera configuraiton.
+- ```scripts/citrico-config```: Enable or disable **octocitrico** default services and edit **octopi** camera configuration.
+- ```scripts/install-klipper```: Install Klipper 3D printer software.
 
-For accessing files via SMB(windows shares) you need to enable Samba service (preconfigured) using ```scripts/citrico-config```
+For accessing files via SMB(windows shares) you need to enable Samba service (preconfigured) using ```scripts/citrico-config```. A default share ```pi-files``` will be avaible using ```pi```user.
 
 ## Adding boards
 Adding boards to the project requires few steps:
@@ -78,8 +84,9 @@ Adding boards to the project requires few steps:
 Building the distribution requires:
 
 - Linux or MacOs
-- Vagrant + virtualbox
-- 40Gb of free disk space.
+- Vagrant + Virtualbox
+- +50Gb of free disk space.
+- +6Gb RAM
 
 ```bash
 $ git clone <this repository>
@@ -96,8 +103,12 @@ Building process could use a lot of space of your disk. To free this space after
 
 ## Tested boards
 
-- Orange Pi Zero 256 Mb (not recommended due tue low memory)
+- Orange Pi Zero 256 Mb (not recommended due to low memory)
 - Orange Pi Zero 512 Mb
+
+WIP:
+
+- Orange Pi One
 
 ## Contributing
 
