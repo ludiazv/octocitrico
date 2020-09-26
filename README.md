@@ -109,6 +109,7 @@ Building process could use a lot of space of your disk. To free this space after
 WIP:
 
 - Orange Pi One
+- Orange Pi PC
 
 ## Contributing
 

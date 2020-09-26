@@ -19,10 +19,19 @@
 
 - Status: wip
 - Name: opione
-- Image name: Orangepizero
+- Image name: Orangepione
 - Features:
     - Console over front USB-OTG (require power via Jack)
     - SPIDEV 0 
+    - I2C0
+    - UART 3
+
+## Orange PI PC
+- Status: WIP
+- Name: opipc
+- Image Orangepipc
+- Features:
+    - SPIDEV 0
     - I2C0
     - UART 3
 

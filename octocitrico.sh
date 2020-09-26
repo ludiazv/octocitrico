@@ -1,6 +1,6 @@
 #!/bin/bash
 ARMBIAN_REPO="https://github.com/armbian/build"
-ARMBIAN_TAG="v20.05"
+ARMBIAN_TAG="remotes/origin/v20.08"
 OCTOPI_REPO="https://github.com/guysoft/OctoPi"
 MJPGSTREAMER_REPO="https://github.com/jacksonliam/mjpg-streamer.git"
 OCTOPI_TAG="0.17.0"
@@ -156,13 +156,14 @@ fi
 if [ "$1" == "assets" ] ; then
 
     # clone armbian buil repository
-    git clone --depth 1 $ARMBIAN_REPO $AR_DIR
+    git clone $ARMBIAN_REPO $AR_DIR
     pushd $AR_DIR
     git fetch && git fetch --tags
     git checkout $ARMBIAN_TAG
     popd
     # fix vm memory + Drive
-    $SEDI 's/#vb\.memory = "8192"/vb\.memory="4096"/g' $VAGRANT_DIR/Vagrantfile
+    $SEDI 's/#vb\.memory = "8192"/vb\.memory="6144"/g' $VAGRANT_DIR/Vagrantfile
+    $SEDI 's/#vb\.cpus = "4"/vb\.cpus = "4"/g' $VAGRANT_DIR/Vagrantfile
     $SEDI 's/disksize\.size = "40GB"/disksize\.size = "45GB"/g' $VAGRANT_DIR/Vagrantfile
 
     # clone octopi repo
@@ -241,7 +242,7 @@ if [ "$1" == "release" ] ; then
     fi
     echo "Puhsing repository..."
     git push
-
+    # TODO
 
 
 fi
