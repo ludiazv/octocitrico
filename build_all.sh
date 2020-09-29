@@ -18,7 +18,7 @@ echo "Building...."
 for i in "${BOARDS[@]}"
 do
     echo "Build $i with cache...."
-    ./octocitrico build $i cache
+    ./octocitrico.sh build $i cache
 done
 
 exit 0
