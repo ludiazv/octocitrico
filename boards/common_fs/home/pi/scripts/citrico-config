@@ -3,12 +3,19 @@ BACKTIT="OctoCitrico"
 DIALOG="dialog --backtitle $BACKTIT"
 TMP="/tmp/aswer.tmp"
 RET=0
-SERVICES=( octoprint.service haproxy.service webcamd.service smbd.service klipper.service )
-SERVICES_N=( "Octoprint" "HAProxy" "WebCam streamer" "Samba Shares" "Klipper 3D printer control" )
+SERVICES=( octoprint.service haproxy.service webcamd.service smbd.service )
+SERVICES_N=( "Octoprint" "HAProxy" "WebCam streamer" "Samba Shares"  )
 
 if [ "$EUID" -ne 0 ] ; then
     echo "This script require sudo to run. type sudo $0"
     exit 1
+fi
+
+# test if klipper service exists to add to service lists
+systemctl -q status klipper.service > /dev/null
+if [ $? -lt 4 ] ; then
+	SERVICES+=( klipper.service )
+	SERVICES_N+=( "Klipper 3D printer control" )
 fi
 
 function service_down() {
