@@ -1,0 +1,18 @@
+[
+    {
+        "tag":"v20.08-2",
+        "name":"Update to armbian stable v20.08 (Caple)",
+        "body":[
+            "Bump to new stable armbian [version 20.08](https://github.com/armbian/build/releases/tag/v20.08)\n",
+            "\n## New boards:",
+            " - Added orange PI Pc",
+            "\n\n **Notice**: This will is the last release using python2 next releases will migrate to python3",
+            "\n## Builder:",
+            " - Improved compilation VM speed",
+            " - Parametric virtualenv (preparation for python3)",
+            " - Fix citrico-config to hide kilipper if not installed",
+            " - Automation of releases"
+        ],
+        "prerelease":true
+    }
+]
