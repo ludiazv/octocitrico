@@ -249,12 +249,13 @@ if [ "$1" == "release" ] ; then
     fi
     
     # Check if pending to publish
+    set +e
     git status -s | egrep 'M|\?\?' > /dev/null
     if [ $? -eq 0 ] ; then
         echo "There are pending commits aborting"
         exit 1
     fi
-    set +e
+    
     git tag | grep $2 > /dev/null
     if [ $? -eq 1 ] ; then
         echo "Tag $2 don't exists in the repository"
