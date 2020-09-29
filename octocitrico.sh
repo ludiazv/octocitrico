@@ -249,11 +249,11 @@ if [ "$1" == "release" ] ; then
     fi
     
     # Check if pending to publish
-    #git status -s | egrep 'M|\?\?' > /dev/null
-    #if [ $? -eq 0 ] ; then
-    #    echo "There are pending commits aborting"
-    #    exit 1
-    #fi
+    git status -s | egrep 'M|\?\?' > /dev/null
+    if [ $? -eq 0 ] ; then
+        echo "There are pending commits aborting"
+        exit 1
+    fi
     set +e
     git tag | grep $2 > /dev/null
     if [ $? -eq 1 ] ; then
@@ -293,7 +293,8 @@ if [ "$1" == "release" ] ; then
     read -n 1 resp
     if [ "$resp" == "y" ] || [ "$resp" == "Y" ] ; then
         echo "Puhsing repository..."
-        echo "git push ; git push --tags"
+        git push
+        git push --tags
 
         echo $rel | jq -r .name > release.tmp
         echo $rel | jq -r .body[] >> release.tmp
@@ -310,12 +311,12 @@ if [ "$1" == "release" ] ; then
             if [ "$resp" == "y" ] || [ "$resp" == "Y" ] ; then
                 echo
                 echo "Deleting $tag relese."
-                echo "hub release delete $tag"
+                hub release delete $tag
             fi
         fi
         set -e
-        echo "hub release create -F release.tmp $PRE_RELEASE $FILE_ASSETS $tag"
-        #rm release.tmp
+        hub release create -F release.tmp $PRE_RELEASE $FILE_ASSETS $tag
+        rm release.tmp
     else
         echo
         echo "Aborting!"
