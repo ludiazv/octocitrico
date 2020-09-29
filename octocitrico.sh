@@ -20,14 +20,14 @@ echo "OptoCitrico script => $1 [runining on $BOS]"
 
 if [ $# -eq 0 ] ; then
    echo "Usage:"
-   echo " $0 box             : install ubuntu box for builing"
-   echo " $0 drop            : destroy build virtual manchine"
-   echo " $0 clean           : delete all build resources (assets,box,vm)"
-   echo " $0 assets          : download build assets"
-   echo " $0 build <board>   : Build image for board <board> uisng vagrant"
-   echo " $0 dbuild <board>  : Build image for board <board> using docker"
-   echo " $0 native <board>  : Build image in native supported Ubuntu"
-   echo " $0 release         : Create a git release (use for maintenance)"
+   echo " $0 box              : install ubuntu box for builing"
+   echo " $0 drop             : destroy build virtual manchine"
+   echo " $0 clean            : delete all build resources (assets,box,vm)"
+   echo " $0 assets           : download build assets"
+   echo " $0 build <board>    : Build image for board <board> uisng vagrant"
+   echo " $0 dbuild <board>   : Build image for board <board> using docker"
+   echo " $0 native <board>   : Build image in native supported Ubuntu"
+   echo " $0 release <version>: Create a git release (use for maintenance)"
    exit 1
 fi
 
@@ -235,16 +235,93 @@ if [ "$1" == "clean" ] ; then
 fi
 
 if [ "$1" == "release" ] ; then
-    git status -s | egrep 'M|\?\?'
-    if [ $0 -eq 0 ] ; then
-        echo "There are pending commits aborting"
+
+    if [ -z $2 ] ; then
+        echo "Release require version as parameter."
         exit 1
     fi
-    echo "Puhsing repository..."
-    git push
-    # TODO
+    # Test if tag is in manifest
+    echo "Fetching the release form releases.json"
+    tag=$(jq -r ".[] | select(.tag == \"$2\") | .tag" releases.json) 
+    if [ "$tag" != "$2" ] ; then
+        echo "$2 version not found in releases aboring"
+        exit 1
+    fi
+    
+    # Check if pending to publish
+    #git status -s | egrep 'M|\?\?' > /dev/null
+    #if [ $? -eq 0 ] ; then
+    #    echo "There are pending commits aborting"
+    #    exit 1
+    #fi
+    set +e
+    git tag | grep $2 > /dev/null
+    if [ $? -eq 1 ] ; then
+        echo "Tag $2 don't exists in the repository"
+        printf "Do you what to create it?[y/N]"
+        read -n 1 resp
+        if [ "$resp" == "Y" ] || [ "$resp" == "y" ] ; then
+            git tag $tag
+        else
+            echo ".....Aborting!"
+            exit 1
+        fi
+    fi
+    set -e
+    if [ "$tag" != "$(git tag --points-at HEAD)" ] ; then
+        echo "HEAD is not poiting to $tag...Aborting"
+        exit 1
+    fi
 
+    echo "Version $tag found. Details:"
+    rel=$(jq -r ".[] | select(.tag == \"$2\")" releases.json)
+    echo $rel | jq .
+    PRE_RELEASE=""
+    pr=$(echo $rel | jq -r .prerelease)
+    [ "$pr" == "true" ] && PRE_RELEASE="-p"
 
+    echo "Images found:"
+    imgs=$(ls $AR_DIR/output/images/*.7z)
+    ls -lh $AR_DIR/output/images/*.7z
+    FILE_ASSETS=""
+    for img in $imgs
+    do
+      FILE_ASSETS="$FILE_ASSETS -a $img"
+    done
+
+    printf "Proceed with release?[N/y]"
+    read -n 1 resp
+    if [ "$resp" == "y" ] || [ "$resp" == "Y" ] ; then
+        echo "Puhsing repository..."
+        echo "git push ; git push --tags"
+
+        echo $rel | jq -r .name > release.tmp
+        echo $rel | jq -r .body[] >> release.tmp
+        printf "\n##Upstream versions:\n\n" >> release.tmp
+        echo " - Armbian: $(cat $AR_DIR/VERSION)" >> release.tmp
+        echo " - OctoPi: $OCTOPI_TAG" >> release.tmp
+
+        set +e
+        hub release | grep $tag
+        if [ $? -eq 0 ] ; then
+            set -e
+            echo "Release $tag is already published. Do you want to delete it?"
+            read -n 1 resp
+            if [ "$resp" == "y" ] || [ "$resp" == "Y" ] ; then
+                echo
+                echo "Deleting $tag relese."
+                echo "hub release delete $tag"
+            fi
+        fi
+        set -e
+        echo "hub release create -F release.tmp $PRE_RELEASE $FILE_ASSETS $tag"
+        #rm release.tmp
+    else
+        echo
+        echo "Aborting!"
+        exit 1
+    fi
+    exit $?
 fi
 
 echo "Invalid command"
