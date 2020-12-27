@@ -14,5 +14,25 @@
             " - Automation of releases"
         ],
         "prerelease":true
+    },
+    {
+        "tag":"v20.11-1",
+        "name":"Update to armbian stable v20.11",
+        "body":[
+            "Bump to stable armbian v20.11\n",
+            "Runtime migrated to python3\n",
+            "**Note:**New HSL streaming of octoPi is not incluided as octoPi 0.18 is still no stable\n\n",
+            "\n## New boards:\n",
+            " - Added orange PI PC+\n",
+            " - Added BananaPI M2\n",
+            " - Added Rock64\n",
+            "\n\n",
+            "## Builder:\n",
+            " - Vagrant build uses now ubuntu focal 64 box.",
+            " - Updated base packages including libatlas3-base for numpy wheel usage",
+            " - Added piwheels source to pip to speed up builds"
+        ],
+        "prerelease":true
     }
+
 ]
