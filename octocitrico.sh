@@ -306,6 +306,7 @@ if [ "$1" == "release" ] ; then
         printf "\n## Upstream versions:\n\n" >> release.tmp
         echo " - Armbian: $(cat $AR_DIR/VERSION)" >> release.tmp
         echo " - OctoPi: $OCTOPI_TAG" >> release.tmp
+        echo " - Octoprint: $(cat opi_source/octoprint_version.txt)" >> release.tmp
 
         set +e
         hub release | grep $tag
