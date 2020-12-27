@@ -179,9 +179,9 @@ function install_octoprint() {
   local user=$1
   pushd /home/$user
     printf "Installing octoprint..."
-    su -c "virtualenv oprint" -l $user
+    su -c "python3 -m virtualenv --python=python3 oprint" -l $user
     su -c "/home/$user/oprint/bin/pip install --upgrade pip" -l $user
-    su -c "/home/$user/oprint/bin/pip --no-cache-dir install $PYBONJOUR_ARCHIVE" -l $user
+    #su -c "/home/$user/oprint/bin/pip --no-cache-dir install $PYBONJOUR_ARCHIVE" -l $user
     su -c "/home/$user/oprint/bin/pip --no-cache-dir install $OCTOPRINT_ARCHIVE" -l $user
   popd
   # Prepare systemd startup
@@ -259,7 +259,7 @@ function install_extras() {
   su -l $user -c "wget -O tmp.zip $MARLIN2_ARCHIVE ; unzip tmp.zip"
   su -l $user -c "wget -O tmp.zip $MARLIN1_ARCHIVE ; unzip tmp.zip"
   rm tmp.zip
-  su -l $user -c "virtualenv .platformio/penv"
+  su -l $user -c "python3 -m virtualenv --python=python3 .platformio/penv"
   su -l $user -c "/home/$user/.platformio/penv/bin/pip --no-cache-dir install -U platformio"
   su -l $user -c "echo 'export PATH=\$PATH:~/.platformio/penv/bin' >> /home/$user/.profile"
   #su -l $user -c "git clone --depth 1 $KLIPPER_REPO"
