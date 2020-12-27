@@ -3,7 +3,8 @@ OCTO_USER="pi"
 OCTO_PASSWD="pi"
 
 BASE_UTILS="neofetch git wget screen subversion cmake checkinstall"
-BASE_PACKS="python3 python3-virtualenv python3-dev avahi-daemon libavahi-compat-libdnssd1 libjpeg62-turbo-dev imagemagick ffmpeg libv4l-dev libffi-dev libssl-dev ssl-cert haproxy samba samba-common"
+BASE_PACKS="python3 python3-virtualenv python3-dev avahi-daemon libavahi-compat-libdnssd1 libjpeg62-turbo-dev imagemagick ffmpeg libv4l-dev libffi-dev libssl-dev ssl-cert haproxy samba samba-common libatlas3-base"
+OCTOPRINT_VERSION=$(wget -q -O - https://api.github.com/repos/foosel/OctoPrint/releases/latest | grep "tag_name" | cut -d : -f 1 | tr -d \" | tr -d ,)
 OCTOPRINT_ARCHIVE=$(wget -q -O - https://api.github.com/repos/foosel/OctoPrint/releases/latest | grep "zipball_url" | cut -d : -f 2,3 | tr -d \" | tr -d ,)
 OCTOPRINT_PLUGINS=( "https://github.com/imrahil/OctoPrint-NavbarTemp/archive/master.zip"
                     "https://github.com/Renaud11232/OctoPrint-Resource-Monitor/archive/master.zip"
@@ -20,11 +21,11 @@ OCTOPRINT_PLUGINS=( "https://github.com/imrahil/OctoPrint-NavbarTemp/archive/mas
                     "https://github.com/jneilliii/OctoPrint-BedLevelingWizard/archive/master.zip"
                     "https://github.com/jneilliii/OctoPrint-BedLevelVisualizer/archive/master.zip"
 )
-# Not used
+# Not used 
 # 
 # "https://github.com/mmone/OctoPrintKlipper/archive/master.zip"
 
-# Remove pybonjour not needed
+# Remove pybonjour not needed in python3
 #PYBONJOUR_ARCHIVE=https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/pybonjour/pybonjour-1.1.1.tar.gz
 
 MJPGSTREAMER_REPO_SHIP=https://github.com/jacksonliam/mjpg-streamer.git
