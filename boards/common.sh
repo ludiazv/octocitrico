@@ -171,6 +171,10 @@ function tweak_base() {
    wget -O yq $url && chmod +x yq && mv yq /usr/local/bin
    # Remove ssl-certs
    rm /etc/ssl/private/ssl-cert-snakeoil.key /etc/ssl/certs/ssl-cert-snakeoil.pem
+   # Add piwheels to pip.conf
+   echo "[global]" >> /etc/pip.conf
+   echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf
+   
    echo_result $? "[TWEAK BASE]"
 }
 # Install octroprint
