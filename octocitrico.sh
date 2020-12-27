@@ -177,6 +177,10 @@ if [ "$1" == "assets" ] ; then
     git clone --depth 1 $MJPGSTREAMER_REPO mjpg-streamer
     #git clone --depth 1 $KLIPPER_REPO klipper
     popd
+
+    # Extract octoprint version
+    source boards/manifest
+    echo $OCTOPRINT_VERSION > opi_source/octoprint_version.txt
     exit $?
 fi
 
@@ -299,7 +303,7 @@ if [ "$1" == "release" ] ; then
 
         echo $rel | jq -r .name > release.tmp
         echo $rel | jq -r .body[] >> release.tmp
-        printf "\n##Upstream versions:\n\n" >> release.tmp
+        printf "\n## Upstream versions:\n\n" >> release.tmp
         echo " - Armbian: $(cat $AR_DIR/VERSION)" >> release.tmp
         echo " - OctoPi: $OCTOPI_TAG" >> release.tmp
 
