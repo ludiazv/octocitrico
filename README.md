@@ -118,11 +118,14 @@ Building process could use a lot of space of your disk. To free this space after
 
 - Orange Pi Zero 256 Mb (not recommended due to low memory)
 - Orange Pi Zero 512 Mb
+- Orange Pi PC
 
 WIP:
 
 - Orange Pi One
-- Orange Pi PC
+- Rock64
+- Orange Pi PC+
+- Banana PI M2 Zero
 
 ## Contributing
 If you like this project and you want support it please consider:
@@ -130,7 +133,7 @@ If you like this project and you want support it please consider:
 - Send PRs are to fix bugs and add new boards.
 - Test bords and provide feeback.
 - Make a donation to Armbian, Octoprint & OctoPi projects.
-- Make a donation to this project [here](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TK8N2EFVAZM6W&source=url): This will enable to buy boards for testing and to pay cloud infrastructure to improve the compilation process.
+- Make a donation to this project [here](https://www.buymeacoffee.com/boros): This will enable to buy boards for testing and to pay cloud infrastructure to improve the compilation process.
 <p align="center">
 <a href="https://www.buymeacoffee.com/boros" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-white.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 </p>
