@@ -1,6 +1,6 @@
 #!/bin/bash
 ARMBIAN_REPO="https://github.com/armbian/build"
-ARMBIAN_TAG="remotes/origin/v20.08"
+ARMBIAN_TAG="remotes/origin/v20.11"
 OCTOPI_REPO="https://github.com/guysoft/OctoPi"
 MJPGSTREAMER_REPO="https://github.com/jacksonliam/mjpg-streamer.git"
 OCTOPI_TAG="0.17.0"
@@ -9,8 +9,8 @@ UP_DIR=$AR_DIR/userpatches
 OV_DIR=$UP_DIR/overlay
 RT_DIR=/tmp/overlay
 VAGRANT_DIR=armbian_build/config/templates
-VAGRANT_BOX="ubuntu/bionic64"
-#VAGRANT_BOX="ubuntu/focal64"
+#VAGRANT_BOX="ubuntu/bionic64"
+VAGRANT_BOX="ubuntu/focal64"
 
 BOS=$(uname -s)
 
@@ -106,9 +106,9 @@ customize_clean
 echo_green "Done!"
 EOF
     # Add additional pacakages to build
-source boards/manifest
+#source boards/manifest
 cat > $UP_DIR/lib.config <<EOF
-PACKAGE_LIST_ADDITIONAL="\$PACKAGE_LIST_ADDITIONAL ${BASE_UTILS}"
+PACKAGE_LIST_ADDITIONAL="\$PACKAGE_LIST_ADDITIONAL ${BASE_UTILS} ${BASE_PACKS}"
 EOF
 
     chmod +x $UP_DIR/customize-image.sh
