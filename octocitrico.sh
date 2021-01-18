@@ -302,6 +302,7 @@ if [ "$1" == "release" ] ; then
         git push --tags
 
         echo $rel | jq -r .name > release.tmp
+        printf "\n\n" >> release.tmp
         echo $rel | jq -r .body[] >> release.tmp
         printf "\n## Upstream versions:\n\n" >> release.tmp
         echo " - Armbian: $(cat $AR_DIR/VERSION)" >> release.tmp
