@@ -26,6 +26,18 @@
     - I2C0
     - UART 3
 
+
+## Orange PI Lite
+
+- Status: wip
+- Name: opilite
+- Image name: Orangepilite
+- Features:
+    - Console over front USB-OTG (require power via Jack)
+    - SPIDEV 0 
+    - I2C0
+    - UART 3
+
 ## Orange PI PC
 
 - Status: tested

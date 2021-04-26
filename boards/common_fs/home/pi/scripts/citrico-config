@@ -3,7 +3,7 @@ BACKTIT="OctoCitrico"
 DIALOG="dialog --backtitle $BACKTIT"
 TMP="/tmp/aswer.tmp"
 RET=0
-SERVICES=( octoprint.service haproxy.service webcamd.service smbd.service )
+SERVICES=( octoprint.service haproxy.service streamer_select.service smbd.service )
 SERVICES_N=( "Octoprint" "HAProxy" "WebCam streamer" "Samba Shares"  )
 
 if [ "$EUID" -ne 0 ] ; then

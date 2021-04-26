@@ -111,11 +111,13 @@ function add_overlay() {
 #  $1 -> root password
 #  $2 -> user name
 #  $3 -> user password
+#  $4 -> webcam user
 function users_and_groups() {
   
   local rootpwd="$1"
   local user="$2"
   local psw="$3"
+  local wc_user="$4"
   
   printf "Change root password..."
   rm -f /root/.not_logged_in_yet
@@ -142,11 +144,19 @@ function users_and_groups() {
   usermod -a -G video   $user
   echo_result $?
 
+  printf "Setting up $wc_user..."
+  useradd $wc_user
+  usermod -aG video $wc_user
+  echo_result $?
+
   printf "Setting up sudo..."
   echo "$user ALL=(ALL) NOPASSWD: /sbin/shutdown *" > /etc/sudoers.d/octoprint-shutdown
   echo "$user ALL= NOPASSWD: /bin/systemctl restart octoprint.service" > /etc/sudoers.d/octoprint-service
   echo "$user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/tmp-nopsw
+  # Fix permission found in bug #7
+  chmod 0440 /etc/sudoers.d/*
   echo_result $?
+
 
   printf "Creating samba share..."
   cat >> /etc/samba/smb.conf <<EOT
@@ -286,27 +296,32 @@ function customize() {
   echo "=================================================="
   echo " OctoCitrico customization script [START]         "
   echo "=================================================="
-  users_and_groups $ROOTPASSWD $OCTO_USER $OCTO_PASSWD
+  users_and_groups $ROOTPASSWD $OCTO_USER $OCTO_PASSWD $WEBCAM_USER
   #install_base $BASE_PACKS
   #             $ROOTPASSWD
   #users_and_groups $ROOTPASSWD $OCTO_USER $OCTO_PASSWD
   tweak_base
   change_host_name "citrico-$board"
-  df -h
-  install_octoprint $OCTO_USER
-  df -h
-  install_octoprint_plugins $OCTO_USER
-  df -h
-
-  # unpack FS
+  
+  # unpack FS octopi
   unpack_file $rt_dir/filesystem/boot/octopi.txt /boot/octopi.txt   root
   unpack $rt_dir/filesystem/home/root            /root              root
   unpack $rt_dir/filesystem/home/$OCTO_USER      /home/$OCTO_USER   $OCTO_USER
   unpack $rt_dir/filesystem/root/etc/haproxy     /etc/haproxy       root
   unpack $rt_dir/filesystem/root/etc/udev        /etc/udev          root
   unpack $rt_dir/filesystem/root/etc/systemd     /etc/systemd       root
+  unpack $rt_dir/filesystem/root/etc/nginx       /etc/nginx         root 
+  unpack $rt_dir/filesystem/root/usr/lib         /usr/lib           root    
+  unpack $rt_dir/filesystem/root/var/lib         /var/lib           root 
+
+  # Install octoprint
+  install_octoprint $OCTO_USER
+  install_octoprint_plugins $OCTO_USER
+
+  # Unpack octocitrico files 
   unpack $rt_dir/common_fs/etc                   /etc               root
   unpack $rt_dir/common_fs/home/$OCTO_USER       /home/$OCTO_USER   $OCTO_USER
+
 
   # make home/$user/scripts executable
   chmod u+x /home/$OCTO_USER/scripts/*
@@ -316,12 +331,9 @@ function customize() {
   # unpack Klipper
   #unpack $rt_dir/klipper   /home/$OCTO_USER/klipper   $OCTO_USER
 
-  df -h
   # Install extras
   install_mjpgstreamer $OCTO_USER
-  df -h
   install_extras $OCTO_USER
-  df -h
 
   #enable/disable services
   systemctl enable gencert.service

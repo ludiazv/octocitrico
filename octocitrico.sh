@@ -1,9 +1,9 @@
 #!/bin/bash
 ARMBIAN_REPO="https://github.com/armbian/build"
-ARMBIAN_TAG="remotes/origin/v20.11"
+ARMBIAN_TAG="remotes/origin/v21.02"
 OCTOPI_REPO="https://github.com/guysoft/OctoPi"
 MJPGSTREAMER_REPO="https://github.com/jacksonliam/mjpg-streamer.git"
-OCTOPI_TAG="0.17.0"
+OCTOPI_TAG="0.18.0"
 AR_DIR=armbian_build
 UP_DIR=$AR_DIR/userpatches
 OV_DIR=$UP_DIR/overlay
@@ -89,10 +89,11 @@ export DEBIAN_FRONTEND=noninteractive
 source $RT_DIR/manifest
 source $RT_DIR/common.sh
 echo_green "Starting customization script...."
-if [[ ! -z "$BASE_PACKS" ]] ; then
-    apt-get -y update
-    apt-get -y install $BASE_PACKS
-fi
+# Base packs are installed via lib variable
+#if [[ ! -z "$BASE_PACKS" ]] ; then
+#    apt-get -y update
+#    apt-get -y install $BASE_PACKS
+#fi
 
 customize $board $RT_DIR
 

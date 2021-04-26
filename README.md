@@ -38,7 +38,7 @@ Extras (installed but disabled):
 
 Prebuilt images:
 
-1. Download & extract disk image (*.img.7z) from *releases*.
+1. Download & extract disk image (*.7z) from *releases*.
 2. Burn the image in a SD card (>8GB recommended) using *usbimager*,*Etcher*, *Win32DiskImager*, *dd* or the image burner of your choice.
 3. Plug the SD card on the board and apply power.
 
@@ -66,10 +66,11 @@ As derivative distribution of OctoPi **Octocitrico** support camera operation ou
 
 Refer to OctoPi [documentation](https://community.octoprint.org/knowledge-explorer?topic=21149) and online tutorials on how to tune your camera. You can edit camera options using ```scripts/citrico-config``` helper tool.
 
+Form version 21.02 experimental support for HLS streaming is included for testing. (included in octopi 0.18)
 
 > **Caveat:**
 > By default webcam streaming service is disabled, you need to enable it before is available for octoprint.
-> it can be enabled by running ``scripts/citrico-config`` with the ``pi`` user. 
+> it can be enabled by running ``sudo scripts/citrico-config`` with the ``pi`` user. 
 
 
 ## Customizing
@@ -119,13 +120,15 @@ Building process could use a lot of space of your disk. To free this space after
 - Orange Pi Zero 256 Mb (not recommended due to low memory)
 - Orange Pi Zero 512 Mb
 - Orange Pi PC
+- Orange Pi PC+
+- Rock64
+- Banana PI M2 Zero
 
 WIP:
 
 - Orange Pi One
-- Rock64
-- Orange Pi PC+
-- Banana PI M2 Zero
+- Orange Pi Lite
+
 
 ## Contributing
 If you like this project and you want support it please consider:
