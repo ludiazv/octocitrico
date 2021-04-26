@@ -2,7 +2,7 @@
 
 set -e
 
-BOARDS=( "opizero" "opione" "opipc" "opipcplus" "bpim2z" "rock64")
+BOARDS=( "opizero" "opione" "opilite" "opipc" "opipcplus" "bpim2z" "rock64")
 echo "==============================="
 echo "Build all tested and WIP boards"
 echo "==============================="
