@@ -33,6 +33,21 @@
             " - Added piwheels source to pip to speed up builds"
         ],
         "prerelease":true
+    },
+    {
+        "tag":"v21.02-1",
+        "name":"Update to octopi v0.18",
+        "body":[
+            "Updated stable armbian v21.02\n",
+            "Bump to new version of octopi 0.18: Improved camera support & bugfix\n",
+            "Added v4linux-utils for camera troubleshouting\n",
+            "Other minor changes\n",
+            "\n\n",
+            "## New boards:\n",
+            " - Added orange PI Lite\n",
+            "\n\n This release do not include ROCK64"
+        ],
+        "prerelease":true
     }
 
 ]
