@@ -5,6 +5,6 @@ pushd $HOME
 git clone --depth 1 $KLIPPER_REPO klipper
 pushd klipper
 sed -i 's/pip -r/pip --no-cache-dir -r /g' ./scripts/install-debian.sh
-chmod u+x ./klipper/scripts/install-debian.sh && ./scripts/install-debian.sh
+chmod u+x ./scripts/install-debian.sh && ./scripts/install-debian.sh
 sudo systemctl disable klipper.service
 popd
