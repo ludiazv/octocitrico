@@ -1,6 +1,6 @@
 #!/bin/bash
 ARMBIAN_REPO="https://github.com/armbian/build"
-ARMBIAN_TAG="remotes/origin/v21.02"
+ARMBIAN_TAG="remotes/origin/v21.05"
 OCTOPI_REPO="https://github.com/guysoft/OctoPi"
 MJPGSTREAMER_REPO="https://github.com/jacksonliam/mjpg-streamer.git"
 OCTOPI_TAG="0.18.0"
