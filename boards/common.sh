@@ -125,9 +125,9 @@ function users_and_groups() {
   echo_result $?
 
   printf "Setting up IO groups..."
-  groupadd i2c
-  groupadd spi
-  groupadd gpio
+  getent group i2c  2>&1 > /dev/null || groupadd i2c
+  getent group spi  2>&1 > /dev/null || groupadd spi
+  getent group gpio 2>&1 > /dev/null || groupadd gpio
   echo_result $?
   
   printf "Setting up $user..."
@@ -261,6 +261,10 @@ function install_mjpgstreamer() {
 </html>
 EOT
     chown $user:$user www-octopi/index.html
+  
+  # Clean build
+  rm -fR _build
+  
   popd
 
 }
