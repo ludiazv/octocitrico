@@ -12,6 +12,12 @@ Credits of this project are for the awesome Armbian team and the outstanding wor
   <a href="https://www.buymeacoffee.com/boros" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-white.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 </p>
 
+or
+
+xrm:
+
+889Eewy4ZmKanvWEbVAQKSH9imihLN6iXBz2kLR5Eb1mP2nv6fnPCevKk5qqmGGFsw7ao6HkmDyom7H3hk1vCFMLUoFWkaF
+
 ## Features
 
 Core (installed and enabled):
@@ -128,6 +134,7 @@ WIP:
 
 - Orange Pi One
 - Orange Pi Lite
+- Orange Pi One Plus
 
 
 ## Contributing
@@ -140,3 +147,8 @@ If you like this project and you want support it please consider:
 <p align="center">
 <a href="https://www.buymeacoffee.com/boros" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-white.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 </p>
+
+or
+
+xrm:
+889Eewy4ZmKanvWEbVAQKSH9imihLN6iXBz2kLR5Eb1mP2nv6fnPCevKk5qqmGGFsw7ao6HkmDyom7H3hk1vCFMLUoFWkaF
