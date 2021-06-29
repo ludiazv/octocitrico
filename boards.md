@@ -60,7 +60,7 @@
 
 ## Banana PI M2 Zero
 
-- Status: Wip
+- Status: tested #13
 - Name: bpm2z
 - Image bananapim2zero
 - Features:
@@ -73,3 +73,11 @@
 - Image Rock64
 - Features:
     Not added yet
+
+## Orange Pi One Plus
+
+- Status: Wip
+- Name: opioneplus
+- Image orangepioneplus
+- Features:
+    Not tested
