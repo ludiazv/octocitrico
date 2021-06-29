@@ -48,6 +48,21 @@
             "\n\n This release do not include ROCK64"
         ],
         "prerelease":true
+    },
+    {
+        "tag":"v21.05-1",
+        "name":"Update to armbian 21.05",
+        "body":[
+            "Updated stable armbian v21.05\n",
+            "fixed reboot with systemctl for shutdow #13\n",
+            "other minor changes",
+            "\n\n",
+            "## New boards:\n\n",
+            " - Added orange PI One Plus - WIP\n",
+            "\n\n This release does not include ROCK64 image",
+            "\n\n"
+        ],
+        "prerelease":false
     }
 
 ]
