@@ -81,3 +81,12 @@
 - Image orangepioneplus
 - Features:
     Not tested
+
+## Orange Pi zero 2
+
+- Status: Wip
+- Name:opizero2
+- Image: orangepizero2
+- Features:
+    - edge kernel not stable.
+    Not tested
