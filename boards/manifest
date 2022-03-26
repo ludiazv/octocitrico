@@ -4,7 +4,7 @@ OCTO_PASSWD="pi"
 WEBCAM_USER=webcam
 BASE_UTILS="neofetch git wget screen subversion cmake v4l-utils"
 BASE_PACKS="python3 python3-virtualenv python3-dev avahi-daemon libavahi-compat-libdnssd1 libjpeg62-turbo-dev imagemagick ffmpeg libv4l-dev libffi-dev libssl-dev ssl-cert haproxy samba samba-common libatlas3-base nginx"
-OCTOPRINT_VERSION=$(wget -q -O - https://api.github.com/repos/foosel/OctoPrint/releases/latest | grep "tag_name" | cut -d : -f 1 | tr -d \" | tr -d ,)
+OCTOPRINT_VERSION=$(wget -q -O - https://api.github.com/repos/foosel/OctoPrint/releases/latest | grep "tag_name" | cut -d : -f 2 | tr -d \" | tr -d ,)
 OCTOPRINT_ARCHIVE=$(wget -q -O - https://api.github.com/repos/foosel/OctoPrint/releases/latest | grep "zipball_url" | cut -d : -f 2,3 | tr -d \" | tr -d ,)
 OCTOPRINT_PLUGINS=( "https://github.com/imrahil/OctoPrint-NavbarTemp/archive/master.zip"
                     "https://github.com/Renaud11232/OctoPrint-Resource-Monitor/archive/master.zip"
