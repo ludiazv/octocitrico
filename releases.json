@@ -63,6 +63,19 @@
             "\n\n"
         ],
         "prerelease":false
+    },
+    {
+        "tag":"v22-02-1",
+        "name":"Update to bullseye and armbian 22.02",
+        "body": [
+            "Distro update current debian (bullseye)",
+            "Updated to stable amrbia v22.05",
+            "\n\n",
+            "## New boards:\n\n",
+            " -Added Orange Pi Zero 2 - edge kernel branch\n",
+            "\n\n"
+        ],
+        "prerelease":false
     }
 
 ]
