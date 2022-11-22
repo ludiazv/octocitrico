@@ -1,6 +1,6 @@
 #!/bin/bash
 ARMBIAN_REPO="https://github.com/armbian/build"
-ARMBIAN_TAG="remotes/origin/v22.02"
+ARMBIAN_TAG="remotes/origin/v22.11"
 OCTOPI_REPO="https://github.com/guysoft/OctoPi"
 MJPGSTREAMER_REPO="https://github.com/jacksonliam/mjpg-streamer.git"
 OCTOPI_TAG="0.18.0"
@@ -10,7 +10,8 @@ OV_DIR=$UP_DIR/overlay
 RT_DIR=/tmp/overlay
 VAGRANT_DIR=armbian_build/config/templates
 #VAGRANT_BOX="ubuntu/bionic64"
-VAGRANT_BOX="ubuntu/focal64"
+#VAGRANT_BOX="ubuntu/focal64"
+VAGRANT_BOX="generic/ubuntu2204"
 
 BOS=$(uname -s)
 
@@ -118,7 +119,7 @@ EOF
     if [ -z $build_mode ] ; then
         pushd $VAGRANT_DIR
         vagrant halt
-        vagrant up
+        vagrant up --provider=virtualbox
         vagrant ssh-config
         vagrant ssh -c "cd armbian ; \
                         sudo git fetch && sudo git fetch --tags ; \
@@ -149,7 +150,7 @@ if [ "$1" == "box" ] ; then
     fi
     echo "Setting up $VAGRANT box...."
     vagrant plugin install vagrant-disksize
-    vagrant box add $VAGRANT_BOX
+    vagrant box add $VAGRANT_BOX --provider virtualbox
     vagrant box update
     exit $?
 fi
