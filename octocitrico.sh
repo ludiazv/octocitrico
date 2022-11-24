@@ -24,6 +24,7 @@ if [ $# -eq 0 ] ; then
    echo " $0 box              : install ubuntu box for builing"
    echo " $0 drop             : destroy build virtual manchine"
    echo " $0 clean            : delete all build resources (assets,box,vm)"
+   echo " $0 clean_docker    : clean docker build env"
    echo " $0 assets           : download build assets"
    echo " $0 build <board>    : Build image for board <board> uisng vagrant"
    echo " $0 dbuild <board>   : Build image for board <board> using docker"
@@ -150,6 +151,7 @@ if [ "$1" == "box" ] ; then
     fi
     echo "Setting up $VAGRANT box...."
     vagrant plugin install vagrant-disksize
+    vagrant plugin install vagrant-sshfs
     vagrant box add $VAGRANT_BOX --provider virtualbox
     vagrant box update
     exit $?
@@ -163,10 +165,14 @@ if [ "$1" == "assets" ] ; then
     git fetch && git fetch --tags
     git checkout $ARMBIAN_TAG
     popd
+    # Save two copies of the Vagrant file.
+    cp $VAGRANT_DIR/Vagrantfile $VAGRANT_DIR/Vagrantfile_orig
     # fix vm memory + Drive
     $SEDI 's/#vb\.memory = "8192"/vb\.memory="6144"/g' $VAGRANT_DIR/Vagrantfile
     $SEDI 's/#vb\.cpus = "4"/vb\.cpus = "4"/g' $VAGRANT_DIR/Vagrantfile
     $SEDI 's/disksize\.size = "40GB"/disksize\.size = "45GB"/g' $VAGRANT_DIR/Vagrantfile
+    cp $VAGRANT_DIR/Vagrantfile $VAGRANT_DIR/Vagrantfile_patched
+    cp $VAGRANT_DIR/Vagrantfile_orig $VAGRANT_DIR/Vagrantfile
 
     # clone octopi repo
     git clone $OCTOPI_REPO opi_source
@@ -208,8 +214,12 @@ if [ "$1" == "build" ] || [ "$1" == "native" ] || [ "$1" == "dbuild" ] ; then
         mkdir -p $UP_DIR
         mkdir -p $OV_DIR
         if [ "$1" == "build" ] ; then
+            # Se the vagrant file to the patched to improve complitation performance
+            cp $VAGRANT_DIR/Vagrantfile_patched $VAGRANT_DIR/Vagrantfile
             build_start $2 "" $3
         elif [ "$1" == "dbuild" ] ; then
+            # Be sure that the Vagrantfile is the original to avoid compilation prompts
+            cp $VAGRANT_DIR/Vagrantfile_orig $VAGRAT_DIR/Vagrantfile
             build_start $2 "docker" $3
         else
             build_start $2 "native" $3
@@ -235,9 +245,22 @@ if [ "$1" == "clean" ] ; then
    echo "Removing assets..."
    rm -fR armbian_build
    rm -fR opi_source
-   echo "Removing ouputs...."
-   rm -fR images
+   #echo "Removing ouputs...."
+   #rm -fR images
    exit $?
+fi
+
+if [ "$1" == "clean_docker" ] ; then 
+    echo "Purge docker..."
+    pushd $AR_DIR
+    ./compile.sh dockerpurge
+    popd
+    echo "Removing assets..."
+    rm -fR armbian_build
+    rm -fR opi_source
+    #echo "Removing ouputs...."
+    #rm -fR images
+    exit $?
 fi
 
 if [ "$1" == "release" ] ; then
@@ -310,6 +333,7 @@ if [ "$1" == "release" ] ; then
         echo " - Armbian: $(cat $AR_DIR/VERSION)" >> release.tmp
         echo " - OctoPi: $OCTOPI_TAG" >> release.tmp
         echo " - Octoprint: $(cat opi_source/octoprint_version.txt)" >> release.tmp
+        printf "\n\n" >> release.tmp
 
         set +e
         hub release | grep $tag

@@ -2,7 +2,7 @@
 
 set -e
 
-BOARDS=( "opizero" "opione" "opilite" "opipc" "opipcplus" "bpim2z" "opioneplus" "rock64" )
+BOARDS=( "opizero" "opione" "opilite" "opipc" "opipcplus" "bpim2z" "opioneplus" "rock64" "opizero2" "opi3lts" )
 echo "==============================="
 echo "Build all tested and WIP boards"
 echo "==============================="
@@ -11,13 +11,23 @@ printf "Do you want to clean first?[y/N]?"
 read -n 1 resp
 if [ "$resp" == "y" ] || [ "$resp" == "Y" ] ; then
     set +e
-    echo 
-    echo "Cleaning...."
-    ./octocitrico.sh clean
-    echo "Installing build environment...."
-    ./octocitrico.sh box
-    ./octocitrico.sh assets
-    echo
+    if [ "$1" == "docker" ] ; then
+        echo
+        echo "Cleaning docker build env..."
+        pushd $AR_DIR
+        ./octocitrico.sh clean_docker
+        popd
+        echo "Installing docker build env..."
+        ./octocitrico.sh assets
+    else
+        echo 
+        echo "Cleaning...."
+        ./octocitrico.sh clean
+        echo "Installing build environment...."
+        ./octocitrico.sh box
+        ./octocitrico.sh assets
+        echo
+    fi
     set -e
 fi
 echo
@@ -25,7 +35,11 @@ echo "Building...."
 for i in "${BOARDS[@]}"
 do
     echo "Build $i with cache...."
-    ./octocitrico.sh build $i cache
+    if [ "$1" == "docker" ] ; then
+        ./octocitrico.sh dbuild $i cache
+    else
+        ./octocitrico.sh build $i cache
+    fi
 done
 
 exit 0
