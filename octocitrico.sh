@@ -253,7 +253,9 @@ fi
 if [ "$1" == "clean_docker" ] ; then 
     echo "Purge docker..."
     pushd $AR_DIR
-    ./compile.sh dockerpurge
+    docker ls -a | awk '{print $1}' | xargs docker stop 
+    docker container ls -a | grep armbian | awk '{print $1}' | xargs docker container rm 
+	docker image ls | grep armbian | awk '{print $3}' | xargs docker image rm 
     popd
     echo "Removing assets..."
     rm -fR armbian_build
