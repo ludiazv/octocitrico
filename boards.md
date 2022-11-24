@@ -88,5 +88,12 @@
 - Name:opizero2
 - Image: orangepizero2
 - Features:
-    - edge kernel not stable.
     Not tested
+
+## Orange Pi 3 LTS
+- Status: Wip
+- Name:opi3lts
+- Image:orangepi3-lts
+- Features:
+    Not tested
+    

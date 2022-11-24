@@ -21,7 +21,7 @@ xrm:
 ## Features
 
 Core (installed and enabled):
-* Optimized armbian Debian buster.
+* Optimized armbian Debian bullseye.
 * Latest stable octoprint version.
 * Selection of top octoprint plugins.
 * HAProxy with self signed keys for ssl access.
@@ -72,7 +72,7 @@ As derivative distribution of OctoPi **Octocitrico** support camera operation ou
 
 Refer to OctoPi [documentation](https://community.octoprint.org/knowledge-explorer?topic=21149) and online tutorials on how to tune your camera. You can edit camera options using ```scripts/citrico-config``` helper tool.
 
-Form version 21.02 experimental support for HLS streaming is included for testing. (included in octopi 0.18)
+From version 21.02 experimental support for HLS streaming is included for testing. (included in octopi 0.18)
 
 > **Caveat:**
 > By default webcam streaming service is disabled, you need to enable it before is available for octoprint.
@@ -104,7 +104,7 @@ Adding boards to the project requires few steps:
 Building the distribution requires:
 
 - Linux or MacOs
-- Vagrant + Virtualbox
+- Vagrant + Virtualbox or Docker
 - +50Gb of free disk space.
 - +4Gb RAM
 
@@ -135,6 +135,8 @@ WIP:
 - Orange Pi One
 - Orange Pi Lite
 - Orange Pi One Plus
+- Orange Pi Zero 2
+- Orange Pi 3 LTS
 
 
 ## Contributing
