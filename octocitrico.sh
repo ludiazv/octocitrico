@@ -251,17 +251,20 @@ if [ "$1" == "clean" ] ; then
 fi
 
 if [ "$1" == "clean_docker" ] ; then 
+    set +e
     echo "Purge docker..."
     pushd $AR_DIR
-    docker ls -a | awk '{print $1}' | xargs docker stop 
+    #docker ps -a | awk '{print $1}' | xargs docker stop 
     docker container ls -a | grep armbian | awk '{print $1}' | xargs docker container rm 
-	docker image ls | grep armbian | awk '{print $3}' | xargs docker image rm 
+    docker image ls | grep armbian | awk '{print $3}' | xargs docker image rm 
+    docker volume ls | grep armbian-c | awk '{print $2}' | xargs docker volume rm
     popd
     echo "Removing assets..."
-    rm -fR armbian_build
+    sudo rm -fR armbian_build
     rm -fR opi_source
     #echo "Removing ouputs...."
     #rm -fR images
+    set -e
     exit $?
 fi
 
