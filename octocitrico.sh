@@ -219,7 +219,7 @@ if [ "$1" == "build" ] || [ "$1" == "native" ] || [ "$1" == "dbuild" ] ; then
             build_start $2 "" $3
         elif [ "$1" == "dbuild" ] ; then
             # Be sure that the Vagrantfile is the original to avoid compilation prompts
-            cp $VAGRANT_DIR/Vagrantfile_orig $VAGRAT_DIR/Vagrantfile
+            cp $VAGRANT_DIR/Vagrantfile_orig $VAGRANT_DIR/Vagrantfile
             build_start $2 "docker" $3
         else
             build_start $2 "native" $3
