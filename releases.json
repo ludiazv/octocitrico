@@ -76,6 +76,22 @@
             "\n\n"
         ],
         "prerelease":false
+    },
+    {
+        "tag":"v22-11-1",
+        "name":"Update to armbian 22.11 + HA proxy fix",
+        "body": [
+            "Fix HA proxy issues #28 #27 & #22",
+            "Update to armbian v22.11",
+            "Improve docker support in build script",
+            "\n\n",
+            "## New boards:\n\n",
+            " - Added current stable to Orange Pi Zero 2 (WIP)",
+            " - Added Orange Pi 3 LTS WIP",
+            "\n\n"
+        ],
+        "prerelease":false
+
     }
 
 ]
