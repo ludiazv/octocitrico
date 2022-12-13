@@ -324,7 +324,7 @@ function customize() {
 
   # Unpack octocitrico files 
   unpack $rt_dir/common_fs/etc                   /etc               root
-  unpack $rt_dir/common_fs/home/$OCTO_USER       /home/$OCTO_USER   $OCTO_USER
+  unpack $rt_dir/common_fs/home/pi       /home/$OCTO_USER   $OCTO_USER
 
 
   # make home/$user/scripts executable
