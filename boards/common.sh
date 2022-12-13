@@ -310,7 +310,7 @@ function customize() {
   # unpack FS octopi
   unpack_file $rt_dir/filesystem/boot/octopi.txt /boot/octopi.txt   root
   unpack $rt_dir/filesystem/home/root            /root              root
-  unpack $rt_dir/filesystem/home/$OCTO_USER      /home/$OCTO_USER   $OCTO_USER
+  unpack $rt_dir/filesystem/home/pi		 /home/$OCTO_USER   $OCTO_USER
   unpack $rt_dir/filesystem/root/etc/haproxy     /etc/haproxy       root
   unpack $rt_dir/filesystem/root/etc/udev        /etc/udev          root
   unpack $rt_dir/filesystem/root/etc/systemd     /etc/systemd       root
