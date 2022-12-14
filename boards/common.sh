@@ -247,7 +247,7 @@ function install_mjpgstreamer() {
   
   pushd /home/$user/mjpg-streamer
   su -l $user -c "cd /home/$user/mjpg-streamer && make && mkdir -p www-octopi"
-   
+  make install
   cat <<EOT >> www-octopi/index.html
 <html>
 <head><title>mjpg_streamer test page</title></head>
@@ -316,7 +316,9 @@ function customize() {
   unpack $rt_dir/filesystem/root/etc/systemd     /etc/systemd       root
   unpack $rt_dir/filesystem/root/etc/nginx       /etc/nginx         root 
   unpack $rt_dir/filesystem/root/usr/lib         /usr/lib           root    
-  unpack $rt_dir/filesystem/root/var/lib         /var/lib           root 
+  unpack $rt_dir/filesystem/root/var/lib         /var/lib           root
+  # webcamd expects mjpg_streamer in /opt/mjpg-streamer
+  ln -s  /usr/local/bin /opt/mjpg-streamer
 
   # Install octoprint
   install_octoprint $OCTO_USER
@@ -343,7 +345,6 @@ function customize() {
   systemctl enable gencert.service
   systemctl enable octoprint.service
   systemctl disable smbd.service
-
 }
 
 function customize_clean() {
