@@ -247,7 +247,7 @@ function install_mjpgstreamer() {
   
   pushd /home/$user/mjpg-streamer
   su -l $user -c "cd /home/$user/mjpg-streamer && make && mkdir -p www-octopi"
-   
+  make install
   cat <<EOT >> www-octopi/index.html
 <html>
 <head><title>mjpg_streamer test page</title></head>
@@ -310,13 +310,15 @@ function customize() {
   # unpack FS octopi
   unpack_file $rt_dir/filesystem/boot/octopi.txt /boot/octopi.txt   root
   unpack $rt_dir/filesystem/home/root            /root              root
-  unpack $rt_dir/filesystem/home/$OCTO_USER      /home/$OCTO_USER   $OCTO_USER
+  unpack $rt_dir/filesystem/home/pi		 /home/$OCTO_USER   $OCTO_USER
   unpack $rt_dir/filesystem/root/etc/haproxy     /etc/haproxy       root
   unpack $rt_dir/filesystem/root/etc/udev        /etc/udev          root
   unpack $rt_dir/filesystem/root/etc/systemd     /etc/systemd       root
   unpack $rt_dir/filesystem/root/etc/nginx       /etc/nginx         root 
   unpack $rt_dir/filesystem/root/usr/lib         /usr/lib           root    
-  unpack $rt_dir/filesystem/root/var/lib         /var/lib           root 
+  unpack $rt_dir/filesystem/root/var/lib         /var/lib           root
+  # webcamd expects mjpg_streamer in /opt/mjpg-streamer
+  ln -s  /usr/local/bin /opt/mjpg-streamer
 
   # Install octoprint
   install_octoprint $OCTO_USER
@@ -324,7 +326,7 @@ function customize() {
 
   # Unpack octocitrico files 
   unpack $rt_dir/common_fs/etc                   /etc               root
-  unpack $rt_dir/common_fs/home/$OCTO_USER       /home/$OCTO_USER   $OCTO_USER
+  unpack $rt_dir/common_fs/home/pi       /home/$OCTO_USER   $OCTO_USER
 
 
   # make home/$user/scripts executable
@@ -343,7 +345,6 @@ function customize() {
   systemctl enable gencert.service
   systemctl enable octoprint.service
   systemctl disable smbd.service
-
 }
 
 function customize_clean() {
