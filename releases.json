@@ -92,6 +92,22 @@
         ],
         "prerelease":false
 
+    },
+    {
+        "tag":"v23.02-1",
+        "name":"Update to OctoPi 1.0.0 with armbian 23.02",
+        "body": [
+            "Update OctoPi to new 1.0 version",
+            "Update to armbian v23.02",
+            "Fix build to build other user name different name than pi",
+            "Added custom ffnpeg support for HLS streaming (experimental)",
+            "\n\n",
+            "## New boards:\n\n",
+            " - Banana Pi BPI-M2+ (WIP)",
+            "\n\n"
+        ],
+        "prerelease":false
+
     }
 
 ]

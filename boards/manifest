@@ -32,5 +32,5 @@ MJPGSTREAMER_REPO_SHIP=https://github.com/jacksonliam/mjpg-streamer.git
 YQ_DOWNLOAD=$(wget -q -O - https://api.github.com/repos/mikefarah/yq/releases/latest | grep "browser_download_url" | grep "yq_linux_arm\b" | cut -d : -f 2,3 | tr -d \" | tr -d ,)
 YQ_DOWNLOAD64=$(wget -q -O - https://api.github.com/repos/mikefarah/yq/releases/latest | grep "browser_download_url" | grep "yq_linux_arm64" | cut -d : -f 2,3 | tr -d \" | tr -d ,)
 
-MARLIN2_ARCHIVE=https://github.com/MarlinFirmware/Marlin/archive/bugfix-2.0.x.zip
-MARLIN1_ARCHIVE=https://github.com/MarlinFirmware/Marlin/archive/bugfix-1.1.x.zip
+MARLIN2_ARCHIVE=https://github.com/MarlinFirmware/Marlin/archive/2.1.x.zip
+MARLIN1_ARCHIVE=https://github.com/MarlinFirmware/Marlin/archive/1.1.x.zip

@@ -32,6 +32,7 @@ function echo_result() {
   fi
 }
 
+
 function unpack() {
   # call like this: unpack /path/to/source /target user -- this will copy
   # all files & folders from source to target, preserving mode and timestamps
@@ -161,7 +162,7 @@ function users_and_groups() {
   printf "Creating samba share..."
   cat >> /etc/samba/smb.conf <<EOT
   [$user-files]
-  path =/home/pi
+  path =/home/$user
   valid users = $user
   read only = no
   browseable = yes
@@ -196,7 +197,7 @@ function install_octoprint() {
     su -c "python3 -m virtualenv --python=python3 oprint" -l $user
     su -c "/home/$user/oprint/bin/pip install --upgrade pip" -l $user
     #su -c "/home/$user/oprint/bin/pip --no-cache-dir install $PYBONJOUR_ARCHIVE" -l $user
-    su -c "/home/$user/oprint/bin/pip --no-cache-dir install $OCTOPRINT_ARCHIVE" -l $user
+    su -c "/home/$user/oprint/bin/pip --no-cache-dir install $rt_dir/octoprint.tar.gz" -l $user
   popd
   # Prepare systemd startup
 cat > /etc/systemd/system/octoprint.service <<EOF
@@ -228,12 +229,15 @@ EOF
 # $2 -> user
 function install_octoprint_plugins() {
   local user=$1
-  pushd /home/$user
-  for plug in "${OCTOPRINT_PLUGINS[@]}"
-  do
-    su -c "/home/$user/oprint/bin/pip --no-cache-dir install ${plug}" -l $user
-  done
-  popd
+  #pushd /home/$user
+  #for plug in "${OCTOPRINT_PLUGINS[@]}"
+  #do
+  #  su -c "/home/$user/oprint/bin/pip --no-cache-dir install ${plug}" -l $user
+  #done
+  #popd  
+  #Parallel pip
+  su -c "xargs --max-args=1 --max-procs=4 /home/$user/oprint/bin/pip --no-cache-dir install < $rt_dir/plugins/plugins.txt" -l $user
+
 
 }
 
@@ -241,14 +245,40 @@ function install_octoprint_plugins() {
 # $1 -> user
 function install_mjpgstreamer() {
   local user=$1
+  
+  # Migrated to /opt/mjpg-streamer as octopi 1.0
+  local install_dir=/opt/mjpg-streamer
+
+  # unpack MJPG STREAMER temporary to root
+  unpack $rt_dir/mjpg-streamer/mjpg-streamer-experimental   /root/mjpg-streamer   $OCTO_USER
+
+
   #pushd /home/$user
   #su -l $user -c "git clone --depth 1 $MJPGSTREAMER_REPO mjpg-streamer"
   #popd
-  
-  pushd /home/$user/mjpg-streamer
-  su -l $user -c "cd /home/$user/mjpg-streamer && make && mkdir -p www-octopi"
-   
-  cat <<EOT >> www-octopi/index.html
+  pushd /root/mjpg-streamer
+    local build_dir=_build
+    mkdir -p $build_dir
+    pushd $build_dir
+      cmake -DCMAKE_BUILD_TYPE=Release ..
+    popd
+
+    make -j $(nproc) -C $build_dir
+
+    mkdir -p $install_dir
+
+    install -m 755 $build_dir/mjpg_streamer $install_dir
+    find $build_dir -name "*.so" -type f -exec install -m 644 {} $install_dir \;
+
+    # copy bundled web folder
+    cp -a -r ./www $install_dir
+    chmod 755 $install_dir/www
+    chmod -R 644 $install_dir/www
+
+    # create our custom web folder and add a minimal index.html to it
+    mkdir $install_dir/www-octopi
+    pushd $install_dir/www-octopi
+        cat <<EOT >> index.html
 <html>
 <head><title>mjpg_streamer test page</title></head>
 <body>
@@ -260,23 +290,75 @@ function install_mjpgstreamer() {
 </body>
 </html>
 EOT
-    chown $user:$user www-octopi/index.html
-  
-  # Clean build
-  rm -fR _build
-  
+    popd
+      
+  # /root/mjpg-streamer
   popd
 
+  # remove tmp steamer sources
+  rm -rf /root/mjpg-streamer
+
+  # symlink for backwards compatibilitydd
+  sudo -u $user ln -s $install_dir /home/$user/mjpg-streamer
+
 }
+
+# install custom ffmpeg
+# $1 -> $user
+function install_custom_ffmpeg() {
+  local user=$1
+  local ARCH="arm"
+  local FFMPEG_HLS_DIR=/opt/ffmpeg-hls
+  local FFMPEG_ARCHIVE=ffmpeg.tar.gz
+  local FFMPEG_CACHE=$rt_dir/ffmpeg-hls-"${ARCH}"
+
+
+  if [[ "$(uname -m)" == "aarch64" ]] ; then
+     ARCH="aarch64"
+  fi
+
+  if [ -f $FFMPEG_CACHE ] ; then
+    cp $FFMPEG_CACHE $FFMPEG_HLS_DIR/ffmpeg
+  else
+
+    FFMPEG_BUILD_DIR=$(mktemp -d)
+    pushd ${FFMPEG_BUILD_DIR}
+      #wget https://api.github.com/repos/FFmpeg/FFmpeg/tarball/${FFMPEG_COMMIT} -O ${FFMPEG_ARCHIVE}
+      cp $rt_dir/${FFMPEG_ARCHIVE} ./${FFMPEG_ARCHIVE}
+      tar xvzf ${FFMPEG_ARCHIVE}
+      cd FFmpeg*
+      ./configure \
+        --arch="${ARCH}" \
+        --disable-doc \
+        --disable-htmlpages \
+        --disable-manpages \
+        --disable-podpages \
+        --disable-txtpages \
+        --disable-ffplay \
+        --disable-ffprobe
+      make -j$(nproc)
+      mkdir -p ${FFMPEG_HLS_DIR}
+      cp ffmpeg ${FFMPEG_HLS_DIR}/ffmpeg
+      #cp ffmpeg $FFMPEG_CACHE
+      #copy_and_export ffmpeg-hls-"${ARCH}" ffmpeg "${FFMPEG_HLS_DIR}"
+    popd
+    rm -r ${FFMPEG_BUILD_DIR}
+  fi
+
+
+
+
+}
+
 
 #install extras
 # $1 -> user
 function install_extras() {
   local user=$1
   pushd /home/$user
-  su -l $user -c "wget -O tmp.zip $MARLIN2_ARCHIVE ; unzip tmp.zip"
-  su -l $user -c "wget -O tmp.zip $MARLIN1_ARCHIVE ; unzip tmp.zip"
-  rm tmp.zip
+  su -l $user -c "unzip $rt_dir/marlin1.zip"
+  su -l $user -c "unzip $rt_dir/marlin2.zip"
+  
   su -l $user -c "python3 -m virtualenv --python=python3 .platformio/penv"
   su -l $user -c "/home/$user/.platformio/penv/bin/pip --no-cache-dir install -U platformio"
   su -l $user -c "echo 'export PATH=\$PATH:~/.platformio/penv/bin' >> /home/$user/.profile"
@@ -297,9 +379,9 @@ function customize() {
   local rt_dir=$2
 
   # Basic configuration
-  echo "=================================================="
-  echo " OctoCitrico customization script [START]         "
-  echo "=================================================="
+  echo "========================================================"
+  echo " OctoCitrico customization script [START] $CURRENT_ARCH "
+  echo "========================================================"
   users_and_groups $ROOTPASSWD $OCTO_USER $OCTO_PASSWD $WEBCAM_USER
   #install_base $BASE_PACKS
   #             $ROOTPASSWD
@@ -310,7 +392,7 @@ function customize() {
   # unpack FS octopi
   unpack_file $rt_dir/filesystem/boot/octopi.txt /boot/octopi.txt   root
   unpack $rt_dir/filesystem/home/root            /root              root
-  unpack $rt_dir/filesystem/home/$OCTO_USER      /home/$OCTO_USER   $OCTO_USER
+  unpack $rt_dir/filesystem/home/pi              /home/$OCTO_USER   $OCTO_USER
   unpack $rt_dir/filesystem/root/etc/haproxy     /etc/haproxy       root
   unpack $rt_dir/filesystem/root/etc/udev        /etc/udev          root
   unpack $rt_dir/filesystem/root/etc/systemd     /etc/systemd       root
@@ -324,18 +406,20 @@ function customize() {
 
   # Unpack octocitrico files 
   unpack $rt_dir/common_fs/etc                   /etc               root
-  unpack $rt_dir/common_fs/home/$OCTO_USER       /home/$OCTO_USER   $OCTO_USER
+  unpack $rt_dir/common_fs/home/pi               /home/$OCTO_USER   $OCTO_USER
 
 
   # make home/$user/scripts executable
   chmod u+x /home/$OCTO_USER/scripts/*
 
-  # unpack MJPG STREAMER
-  unpack $rt_dir/mjpg-streamer/mjpg-streamer-experimental   /home/$OCTO_USER/mjpg-streamer   $OCTO_USER
+  # fix haproxy configuration file name
+  mv /etc/haproxy/haproxy.2.x.cfg /etc/haproxy/haproxy.cfg
+
   # unpack Klipper
   #unpack $rt_dir/klipper   /home/$OCTO_USER/klipper   $OCTO_USER
 
   # Install extras
+  install_custom_ffmpeg $OCTO_USER
   install_mjpgstreamer $OCTO_USER
   install_extras $OCTO_USER
 

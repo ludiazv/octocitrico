@@ -1,9 +1,10 @@
 #!/bin/bash
 ARMBIAN_REPO="https://github.com/armbian/build"
-ARMBIAN_TAG="remotes/origin/v22.11"
+ARMBIAN_TAG="remotes/origin/v23.02"
 OCTOPI_REPO="https://github.com/guysoft/OctoPi"
 MJPGSTREAMER_REPO="https://github.com/jacksonliam/mjpg-streamer.git"
-OCTOPI_TAG="0.18.0"
+FFMPEG_HLS_COMMIT=c6fdbe26ef30fff817581e5ed6e078d96111248a
+OCTOPI_TAG="1.0.0"
 AR_DIR=armbian_build
 UP_DIR=$AR_DIR/userpatches
 OV_DIR=$UP_DIR/overlay
@@ -88,6 +89,7 @@ set -x
 set -e
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
+export CURRENT_ARCH=\$(uname -m)
 source $RT_DIR/manifest
 source $RT_DIR/common.sh
 echo_green "Starting customization script...."
@@ -174,21 +176,52 @@ if [ "$1" == "assets" ] ; then
     cp $VAGRANT_DIR/Vagrantfile $VAGRANT_DIR/Vagrantfile_patched
     cp $VAGRANT_DIR/Vagrantfile_orig $VAGRANT_DIR/Vagrantfile
 
+    
+    mkdir -p $OV_DIR
+    source boards/manifest
+    # download octoprint archive & plugins
+    pushd $OV_DIR
+      wget -O octropint.tar.gz $OCTOPRINT_ARCHIVE
+      
+      #plugins
+      mkdir -p plugins
+      pushd plugins
+        i=0
+        touch plugins.txt
+        for plug in "${OCTOPRINT_PLUGINS[@]}"
+        do
+            wget -O $i.zip $plug
+            echo "$rt_dir/$i.zip" >> plugins.txt
+            ((i=i+1))
+        done
+      popd
+
+    popd
+
+    # get ffmpeg archive
+    pushd $OV_DIR
+      wget https://api.github.com/repos/FFmpeg/FFmpeg/tarball/${FFMPEG_COMMIT} -O ffmpeg.tar.gz
+    popd
+
     # clone octopi repo
     git clone $OCTOPI_REPO opi_source
     pushd opi_source
     git fetch && git fetch --tags
     git checkout $OCTOPI_TAG
     popd
-    mkdir -p $OV_DIR
     pushd $OV_DIR
     git clone --depth 1 $MJPGSTREAMER_REPO mjpg-streamer
     #git clone --depth 1 $KLIPPER_REPO klipper
     popd
 
     # Extract octoprint version
-    source boards/manifest
     echo $OCTOPRINT_VERSION > opi_source/octoprint_version.txt
+
+    # download extra repos
+    pushd $OV_DIR
+    wget $MARLIN2_ARCHIVE -O marlin2.zip
+    wget $MARLIN1_ARCHIVE -O marlin1.zip
+    popd
     exit $?
 fi
 
