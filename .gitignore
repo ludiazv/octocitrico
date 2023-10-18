@@ -2,6 +2,7 @@ armbian_build
 opi_source
 build
 TODO.md
+patches
 
 # Auto generated
 ### Linux ###
