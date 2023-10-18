@@ -3,8 +3,8 @@ BACKTIT="OctoCitrico"
 DIALOG="dialog --backtitle $BACKTIT"
 TMP="/tmp/aswer.tmp"
 RET=0
-SERVICES=( octoprint.service haproxy.service streamer_select.service smbd.service )
-SERVICES_N=( "Octoprint" "HAProxy" "WebCam streamer" "Samba Shares"  )
+SERVICES=( octoprint.service haproxy.service streamer_select.service nginx.service webcamd.service ffmpeg_hls.service smbd.service )
+SERVICES_N=( "Octoprint" "HAProxy" "Streamer select" "Nginx" "Webcamd" "Ffmpeg HLS" "Samba Shares"  )
 
 if [ "$EUID" -ne 0 ] ; then
     echo "This script require sudo to run. type sudo $0"
@@ -104,11 +104,12 @@ do
 	  nmtui
 	  ;;
 	3)
-	  $DIALOG --title "Edit octopi.txt" --editbox /boot/octopi.txt 0 0 2>$TMP
-	  local RET2=$?
-	  if [ $RET2 -eq 0 ] ; then
-	  	mv $TMP /boot/octopi.txt
-	  fi
+	  nano /boot/octopi.txt
+	  #$DIALOG --title "Edit octopi.txt" --editbox /boot/octopi.txt 0 0 2>$TMP
+	  #local RET2=$?
+	  #if [ $RET2 -eq 0 ] ; then
+	  #	mv $TMP /boot/octopi.txt
+	  #fi
 	  ;;
 	4)
 	  armbian-config
