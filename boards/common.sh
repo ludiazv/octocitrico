@@ -412,6 +412,11 @@ function customize() {
   # make home/$user/scripts executable
   chmod u+x /home/$OCTO_USER/scripts/*
 
+  # Add sensbile defaults for camera in /boot/octopi.txt
+  sed -i 's/#camera="auto"/camera="usb"/' /boot/octopi.txt
+  sed -i -r 's/#camera_usb_options="(.+)"/camera_usb_options="-d \/dev\/video1 \1"/' /boot/octopi.txt
+  sed -i 's/#camera_streamer=mjpeg/camera_streamer=mjpeg/' /boot/octopi.txt
+
   # fix haproxy configuration file name
   mv /etc/haproxy/haproxy.2.x.cfg /etc/haproxy/haproxy.cfg
 
@@ -426,6 +431,7 @@ function customize() {
   #enable/disable services
   systemctl enable gencert.service
   systemctl enable octoprint.service
+  systemctl disable nginx.service
   systemctl disable smbd.service
 
 }
