@@ -108,6 +108,27 @@
         ],
         "prerelease":false
 
+    },
+    {
+        "tag":"v23.08-1",
+        "name":"Update to OctoPi 1.0.0 with armbian 23.08",
+        "body": [
+            "Update OctoPi to new 1.0 version",
+            "Update to armbian v23.08",
+            "Update to debian bookworm",
+            "Fix build script for new armbian builder with buildx",
+            "Fix citrico-config script to correct edit /boot/octopi.txt",
+            "Change bluid system to support only Docker (new build requirements from Armbian)",
+            "Fix build to build other user name different name than pi",
+            "Added custom ffmpeg support for HLS streaming (experimental)",
+            "Added sensible defaults for easy camera support",
+            "\n\n",
+            "## New boards:\n\n",
+            " - Banana Pi BPI-M2+ (WIP)",
+            "\n\n"
+        ],
+        "prerelease":false
+
     }
 
 ]
