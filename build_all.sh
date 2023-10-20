@@ -2,7 +2,8 @@
 
 set -e
 
-BOARDS=( "opizero" "opione" "opilite" "opipc" "opipcplus" "bpim2z" "opioneplus" "rock64" "opizero2" "opi3lts" "bpm2p" )
+#BOARDS=( "opizero" "opione" "opilite" "opipc" "opipcplus" "bpim2z" "opioneplus" "rock64" "opizero2" "opi3lts" "bpm2p" )
+BOARDS=( "opizero" "opione" "opilite" "opipc" "opipcplus" "bpim2z" "opioneplus" "opizero2" "opi3lts" "bpm2p" )
 echo "==============================="
 echo "Build all tested and WIP boards"
 echo "==============================="
@@ -35,11 +36,8 @@ echo "Building...."
 for i in "${BOARDS[@]}"
 do
     echo "Build $i with cache...."
-    if [ "$1" == "docker" ] ; then
-        ./octocitrico.sh dbuild $i cache
-    else
-        ./octocitrico.sh build $i cache
-    fi
+    ./octocitrico.sh build $i cache
+    echo "Done!"
 done
 
 exit 0
