@@ -44,39 +44,57 @@ Extras (installed but disabled):
 
 Prebuilt images:
 
-1. Download & extract disk image (*.7z) from *releases*.
+1. Download & extract disk image (*.xz) from *releases*.
 2. Burn the image in a SD card (>8GB recommended) using *usbimager*,*Etcher*, *Win32DiskImager*, *dd* or the image burner of your choice.
 3. Plug the SD card on the board and apply power.
 
-First boot tipically require a few minutes. Once booted octoprint will be available to use. If your computer is able to resolve mDns (macos or linux avahi) the name of the board is preconfigured as ```citrico-<board>.local```.
+First boot tipically require a few minutes. Once booted octoprint will be available to use. If your computer is able to resolve mDns (macos or linux avahi) the name of the board is preconfigured as 
 
-After boot you can access to octroprint server:
+``citrico-<board>.local``
+
+Afterboot you can access to octroprint server:
 - Access to octoprint via https
 - ssh session
 - Console on Usb OTG (if the board supports it)
 - Console on board's serial interface with a USB-TTL 
 - Conecting a keyboard and screen (if the board supports it)
 
-Armbian do not activate WiFi by default. Any initial network access requires ethernet connection if available on the board or configuring wifi access using a keyboard and monitor.
+Armbian does not activate WiFi by default. Any initial network access requires ethernet connection if available on the board or configuring wifi access using a keyboard and monitor.
 
 ## Default users and passwords:
 
 **octoCitrico** create a two users:
+
 - ```root``` with default password ```octoroot``` 
 - ```pi``` with default password ```pi```. This user has ```sudo``` rights.
 
 It's recommended but not mandatory to change user passwords and disable root access via SSH.
 
 ## Camera configuration
+
 As derivative distribution of OctoPi **Octocitrico** support camera operation out of the box using the same configuration files of OctPi. Any USB camera/webcams supported by debian in your single board computers and by [MJPG-Streamer](https://github.com/jacksonliam/mjpg-streamer) would work. Other cameras might require addtional software installation or configuration steps.
 
 Refer to OctoPi [documentation](https://community.octoprint.org/knowledge-explorer?topic=21149) and online tutorials on how to tune your camera. You can edit camera options using ```scripts/citrico-config``` helper tool.
 
-From version 21.02 experimental support for HLS streaming is included for testing. (included in octopi 0.18)
+From version 21.02 experimental support for HLS streaming is included for testing.
 
-> **Caveat:**
-> By default webcam streaming service is disabled, you need to enable it before is available for octoprint.
-> it can be enabled by running ``sudo scripts/citrico-config`` with the ``pi`` user. 
+
+**Required service activation for camera usage:**
+
+By default **webcam streaming service is disabled** , you need to enable it before is available for octoprint.It can be enabled by running ``sudo scripts/citrico-config`` with the ``pi`` using the following table as reference:
+
+| Service        | MPGSTREAMER |  HLS  Streaming |
+| -------------- | ----------- |  -------------- |
+| haproxy        | enabled     |  enabled        |
+| streamer_select| enabled     |  enabled        |
+| nginx          | disbled     |  enabled        |
+| webcamd        | enabled     |  disabled       |
+| ffmpeg_hls     | disabled    |  enabled        |
+
+
+Edit ```/boot/octopi.txt``` the variable ```camera_streamer=mjpeg``` for mjpg-streamer and ```camera_streamer=hls``` for HLS mode.
+
+__Note: hls mode is still experimental and may require additional manual tweaks in the the configuration. Please refer to octoPi configuration for more details.__
 
 
 ## Customizing
@@ -101,22 +119,17 @@ Adding boards to the project requires few steps:
 
 ## Building
 
-Building the distribution requires:
+From armbian v23.08 Vagrant build is not avaible. To build this repository ``ddocker + docker buildx``` is required.
 
-- Linux or MacOs
-- Vagrant + Virtualbox or Docker
-- +50Gb of free disk space.
-- +4Gb RAM
 
 ```bash
 $ git clone <this repository>
-$ cd optocitrico
-$ ./optocitrico.sh box
+$ cd octocitrico
 $ ./optocitrico.sh assets
 $ ./optocitrico.sh build <board_name>
 ```
 
-Build process is slow and verbose it could take up to 3h depending on your hardware. Be patient.  
+Build process is slow and verbose it could take up to several hours depending on your hardware. Be patient.  
 
 ## Cleaning
 Building process could use a lot of space of your disk. To free this space after building you can execute ```./optocitrico.sh clean```. This will clean all files used for the build including virtual machines and vagrant boxes.
@@ -129,14 +142,14 @@ Building process could use a lot of space of your disk. To free this space after
 - Orange Pi PC+
 - Rock64
 - Banana PI M2 Zero
+- Orange Pi Zero 2 (no wifi support)
+- Orange Pi 3 LTS
 
 WIP:
 
 - Orange Pi One
 - Orange Pi Lite
 - Orange Pi One Plus
-- Orange Pi Zero 2
-- Orange Pi 3 LTS
 
 
 ## Contributing
