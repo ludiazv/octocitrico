@@ -1,6 +1,7 @@
 #!/bin/bash
 ARMBIAN_REPO="https://github.com/armbian/build"
-ARMBIAN_TAG="remotes/origin/v23.02"
+ARMBIAN_VER="v23.08"
+ARMBIAN_TAG="remotes/origin/v23.08"
 OCTOPI_REPO="https://github.com/guysoft/OctoPi"
 MJPGSTREAMER_REPO="https://github.com/jacksonliam/mjpg-streamer.git"
 FFMPEG_HLS_COMMIT=c6fdbe26ef30fff817581e5ed6e078d96111248a
@@ -9,10 +10,6 @@ AR_DIR=armbian_build
 UP_DIR=$AR_DIR/userpatches
 OV_DIR=$UP_DIR/overlay
 RT_DIR=/tmp/overlay
-VAGRANT_DIR=armbian_build/config/templates
-#VAGRANT_BOX="ubuntu/bionic64"
-#VAGRANT_BOX="ubuntu/focal64"
-VAGRANT_BOX="generic/ubuntu2204"
 
 BOS=$(uname -s)
 
@@ -22,12 +19,9 @@ echo "OptoCitrico script => $1 [runining on $BOS]"
 
 if [ $# -eq 0 ] ; then
    echo "Usage:"
-   echo " $0 box              : install ubuntu box for builing"
-   echo " $0 drop             : destroy build virtual manchine"
-   echo " $0 clean            : delete all build resources (assets,box,vm)"
-   echo " $0 clean_docker    : clean docker build env"
+   echo " $0 clean            : clean docker build env"
    echo " $0 assets           : download build assets"
-   echo " $0 build <board>    : Build image for board <board> uisng vagrant"
+   #echo " $0 build <board>    : Build image for board <board> uisng vagrant"
    echo " $0 dbuild <board>   : Build image for board <board> using docker"
    echo " $0 native <board>   : Build image in native supported Ubuntu"
    echo " $0 release <version>: Create a git release (use for maintenance)"
@@ -42,16 +36,6 @@ fi
 SEDI="sed -i bup -e"
 [ "$BOS" == "Linux" ] && SEDI="sed -i"
 
-function clean_vm() {
-    if [ -d $VAGRANT_DIR ]; then
-        pushd $VAGRANT_DIR
-        echo "Cleaning virtual machine...."
-        vagrant destroy
-        popd
-    else
-        echo "$VAGRAT_DIR do not exist. nothing to clean"
-    fi
-}
 
 function build_start() {
     local board=$1
@@ -64,20 +48,19 @@ function build_start() {
     cp -v -p    boards/common.sh $OV_DIR
     cp -v -R -p boards/common_fs $OV_DIR
     cp -v -R -p boards/$board    $OV_DIR
-    dest_conf="$UP_DIR/config-vagrant-guest.conf"
     if [ -z $build_mode ] ; then
-        dest_conf="$UP_DIR/config-vagrant-guest.conf"
-    elif [ "$build_mode" == "docker" ] ; then
         dest_conf="$UP_DIR/config-dbuild.conf"
     else
         dest_conf="$UP_DIR/config-native.conf"
     fi
+    # Copy the board config + config config common.
     cp -v    -p boards/$board/config.conf $dest_conf
+    cp -v    -p boards/common.conf $UP_DIR/config-common.conf
 
     # errase clean level if enable cache
     if [[ ! -z $enable_cache ]] ; then
         echo "Setting max cache!"
-        ${SEDI} "s/^CLEAN_LEVEL=\".*\"/CLEAN_LEVEL=\"\"/" $dest_conf
+        ${SEDI} "s/^CLEAN_LEVEL=\".*\"/CLEAN_LEVEL=\"\"/" $UP_DIR/config-common.conf
         echo 
     fi
 
@@ -94,10 +77,10 @@ source $RT_DIR/manifest
 source $RT_DIR/common.sh
 echo_green "Starting customization script...."
 # Base packs are installed via lib variable
-#if [[ ! -z "$BASE_PACKS" ]] ; then
-#    apt-get -y update
-#    apt-get -y install $BASE_PACKS
-#fi
+if [[ ! -z "$BASE_PACKS" ]] ; then
+    apt-get -y update
+    apt-get install --no-install-recommends --yes $BASE_PACKS $BASE_UTILS
+fi
 
 customize $board $RT_DIR
 
@@ -110,31 +93,20 @@ fi
 customize_clean
 echo_green "Done!"
 EOF
-    # Add additional pacakages to build
+
+# Add additional pacakages to build
 #source boards/manifest
-cat > $UP_DIR/lib.config <<EOF
-PACKAGE_LIST_ADDITIONAL="\$PACKAGE_LIST_ADDITIONAL ${BASE_UTILS} ${BASE_PACKS}"
-EOF
+# !!! This is not supported anymore
+#cat > $UP_DIR/lib.config <<EOF
+#PACKAGE_LIST_ADDITIONAL="\$PACKAGE_LIST_ADDITIONAL ${BASE_UTILS} ${BASE_PACKS}"
+#EOF
 
     chmod +x $UP_DIR/customize-image.sh
   
     echo "Launching build mode=[$build_mode]..."
     if [ -z $build_mode ] ; then
-        pushd $VAGRANT_DIR
-        vagrant halt
-        vagrant up --provider=virtualbox
-        vagrant ssh-config
-        vagrant ssh -c "cd armbian ; \
-                        sudo git fetch && sudo git fetch --tags ; \
-                        if [ \"\$(git tag --points-at HEAD)\" != \"$ARMBIAN_TAG\" ] ; then \
-                            sudo git checkout $ARMBIAN_TAG ; \
-                        fi ; \
-                        sudo ./compile.sh vagrant-guest"
-        vagrant halt
-        popd
-    elif [ "$build_mode" == "docker" ] ; then 
         pushd $AR_DIR
-        ./compile.sh docker dbuild
+        ./compile.sh dbuild
         popd
     else
         echo "Native build not ready yet!"
@@ -143,45 +115,25 @@ EOF
 }
 
 
-# Add vagrant box
-if [ "$1" == "box" ] ; then
-    # Make the Vagrant box available. This might take a while but only needs to be done once.
-    vagrant --version
-    if [ $? -ne 0 ] ; then
-        echo "Vagrant not found. Install vagrant for compiling"
-        exit 1
-    fi
-    echo "Setting up $VAGRANT box...."
-    vagrant plugin install vagrant-disksize
-    vagrant plugin install vagrant-sshfs
-    vagrant box add $VAGRANT_BOX --provider virtualbox
-    vagrant box update
-    exit $?
-fi
 
 if [ "$1" == "assets" ] ; then
 
     # clone armbian buil repository
-    git clone $ARMBIAN_REPO $AR_DIR
-    pushd $AR_DIR
-    git fetch && git fetch --tags
-    git checkout $ARMBIAN_TAG
-    popd
-    # Save two copies of the Vagrant file.
-    cp $VAGRANT_DIR/Vagrantfile $VAGRANT_DIR/Vagrantfile_orig
-    # fix vm memory + Drive
-    $SEDI 's/#vb\.memory = "8192"/vb\.memory="6144"/g' $VAGRANT_DIR/Vagrantfile
-    $SEDI 's/#vb\.cpus = "4"/vb\.cpus = "4"/g' $VAGRANT_DIR/Vagrantfile
-    $SEDI 's/disksize\.size = "40GB"/disksize\.size = "45GB"/g' $VAGRANT_DIR/Vagrantfile
-    cp $VAGRANT_DIR/Vagrantfile $VAGRANT_DIR/Vagrantfile_patched
-    cp $VAGRANT_DIR/Vagrantfile_orig $VAGRANT_DIR/Vagrantfile
+    if [ -d $AR_DIR ] ; then
+       echo "$AR_DIR exists please remove the directory to download a fresh repository of armbian"
+       exit 1
+    fi
+    git clone --depth=1 --branch=$ARMBIAN_VER $ARMBIAN_REPO $AR_DIR
+    #pushd $AR_DIR
+    #git fetch && git fetch --tags
+    #git checkout $ARMBIAN_TAG
+    #popd
 
-    
     mkdir -p $OV_DIR
     source boards/manifest
     # download octoprint archive & plugins
     pushd $OV_DIR
-      wget -O octropint.tar.gz $OCTOPRINT_ARCHIVE
+      wget -O octoprint.tar.gz $OCTOPRINT_ARCHIVE
       
       #plugins
       mkdir -p plugins
@@ -191,7 +143,7 @@ if [ "$1" == "assets" ] ; then
         for plug in "${OCTOPRINT_PLUGINS[@]}"
         do
             wget -O $i.zip $plug
-            echo "$rt_dir/$i.zip" >> plugins.txt
+            echo "$RT_DIR/plugins/$i.zip" >> plugins.txt
             ((i=i+1))
         done
       popd
@@ -204,7 +156,7 @@ if [ "$1" == "assets" ] ; then
     popd
 
     # clone octopi repo
-    git clone $OCTOPI_REPO opi_source
+    [ ! -d opi_source ] && git clone $OCTOPI_REPO opi_source
     pushd opi_source
     git fetch && git fetch --tags
     git checkout $OCTOPI_TAG
@@ -226,7 +178,7 @@ if [ "$1" == "assets" ] ; then
 fi
 
 # Build 
-if [ "$1" == "build" ] || [ "$1" == "native" ] || [ "$1" == "dbuild" ] ; then
+if [ "$1" == "build" ] || [ "$1" == "native" ] ; then
 
     if [ ! -d armbian_build ] ; then
         echo "Error:Armbian build asset not found"
@@ -247,13 +199,7 @@ if [ "$1" == "build" ] || [ "$1" == "native" ] || [ "$1" == "dbuild" ] ; then
         mkdir -p $UP_DIR
         mkdir -p $OV_DIR
         if [ "$1" == "build" ] ; then
-            # Se the vagrant file to the patched to improve complitation performance
-            cp $VAGRANT_DIR/Vagrantfile_patched $VAGRANT_DIR/Vagrantfile
             build_start $2 "" $3
-        elif [ "$1" == "dbuild" ] ; then
-            # Be sure that the Vagrantfile is the original to avoid compilation prompts
-            cp $VAGRANT_DIR/Vagrantfile_orig $VAGRANT_DIR/Vagrantfile
-            build_start $2 "docker" $3
         else
             build_start $2 "native" $3
         fi
@@ -266,24 +212,8 @@ if [ "$1" == "build" ] || [ "$1" == "native" ] || [ "$1" == "dbuild" ] ; then
     fi
 fi
 
-if [ "$1" == "drop" ] ; then
-   clean_vm
-   exit $?
-fi
 
 if [ "$1" == "clean" ] ; then
-   clean_vm
-   echo "Uninstalling ubuntu box...."
-   vagrant box remove $VAGRANT_BOX --all
-   echo "Removing assets..."
-   rm -fR armbian_build
-   rm -fR opi_source
-   #echo "Removing ouputs...."
-   #rm -fR images
-   exit $?
-fi
-
-if [ "$1" == "clean_docker" ] ; then 
     set +e
     echo "Purge docker..."
     pushd $AR_DIR
@@ -349,8 +279,8 @@ if [ "$1" == "release" ] ; then
     [ "$pr" == "true" ] && PRE_RELEASE="-p"
 
     echo "Images found:"
-    imgs=$(ls $AR_DIR/output/images/*.7z)
-    ls -lh $AR_DIR/output/images/*.7z
+    imgs=$(ls $AR_DIR/output/images/*.img.xz)
+    ls -lh $AR_DIR/output/images/*.img.xz
     FILE_ASSETS=""
     for img in $imgs
     do
